@@ -714,7 +714,7 @@ function saveToSharedStore(){
     rowsB: rowsB.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0}))
   };
 
-  setSharedStatus('Đang lưu vào kho chung…', false);
+  setSharedStatus('Đang lưu vào Server…', false);
   fetch(url, {
     method: 'POST',
     // dùng text/plain để tránh trình duyệt gửi preflight OPTIONS (Apps Script Web App không xử lý OPTIONS)
@@ -743,7 +743,7 @@ function fetchSharedList(silent){
       sel.innerHTML = '<option value="">— Chọn báo giá —</option>' +
         sharedQuotesCache.slice().sort((a,b)=>String(b.SavedAt||'').localeCompare(String(a.SavedAt||'')))
           .map(q => `<option value="${q.BookingID}">${q.BookingID} — ${q.CustName || 'Chưa đặt tên'} — ${q.QuoteDate || ''}${q.SalesRep ? ' — '+q.SalesRep : ''}</option>`).join('');
-      if(!silent) setSharedStatus(`Đã tải ${sharedQuotesCache.length} báo giá từ kho chung.`, false);
+      if(!silent) setSharedStatus(`Đã tải ${sharedQuotesCache.length} báo giá từ Server.`, false);
     } else {
       if(!silent) setSharedStatus('Không tải được danh sách: ' + (res && res.error ? res.error : 'lỗi không xác định'), true);
     }
@@ -772,7 +772,7 @@ function loadSelectedSharedQuote(){
     rows: parsedRows,
     rowsB: parsedRowsB
   });
-  setSharedStatus(`Đã mở báo giá "${bookingId}" từ kho chung.`, false);
+  setSharedStatus(`Đã mở báo giá "${bookingId}" từ máy chủ.`, false);
 }
 
 function preparePrint(){
