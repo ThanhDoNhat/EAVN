@@ -170,7 +170,7 @@
     <h2>Phương án B — Đề xuất TerraMaster + Toshiba <span class="tag">Tự động</span></h2>
     <p class="hint">Bảng này tự sinh theo đúng thứ tự dòng của Phương án A: NAS Synology → NAS TerraMaster tương đương; ổ cứng Synology → ổ Toshiba cùng dung lượng (mã 3 → N300, mã 5 → MG Enterprise). Lý do đề xuất cho từng dòng xem ở khối "Ghi chú tư vấn" bên dưới bảng. Bậc giá áp dụng:
       <select id="priceTier" class="no-print" style="width:auto;display:inline-block;padding:3px 8px;font-size:12px;">
-        <option value="gp15">GP15</option><option value="gp20">GP20</option>
+        <option value="gp20">GP20</option><option value="gp15">GP15</option>
       </select>
     </p>
     <table class="sheet optionB">
@@ -263,7 +263,7 @@
       <div class="sig-box"><div class="role">Xác nhận của Khách hàng</div><div class="sig-line">Họ tên, chữ ký, ngày</div></div>
     </div>
     <div class="footnote">
-      Báo giá do EAVN (eascs.com.vn) — Nhà phân phối chính thức TerraMaster &amp; Toshiba tại Việt Nam — lập tự động từ bảng giá nội bộ. Giá chưa bao gồm VAT trừ khi có ghi chú khác.
+      Báo giá do EAVN (eascs.com.vn) — Nhà phân phối chính thức TerraMaster &amp; Toshiba tại Việt Nam — lập tự động từ bảng giá nội bộ. Giá đã bao gồm VAT.
     </div>
   </div>
 
@@ -286,7 +286,7 @@
 
     <p class="hint" style="margin:16px 0 10px;border-top:1px dashed var(--line);padding-top:12px;"><b>Lưu cá nhân (file trên máy)</b> — dùng khi muốn giữ thêm 1 bản riêng.</p>
     <div class="toolbar">
-      <button class="btn secondary" onclick="saveQuote()">💾 Lưu báo giá này (tải file .json)</button>
+      <button class="btn secondary" onclick="saveQuote()">💾 Lưu báo giá này</button>
       <button class="btn secondary" onclick="document.getElementById('loadFileInput').click()">📂 Mở file đã lưu…</button>
       <input type="file" id="loadFileInput" accept="application/json,.json" style="display:none;" onchange="loadQuoteFromFile(this.files[0])">
     </div>
