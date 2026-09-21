@@ -735,7 +735,7 @@ function saveToSharedStore(){
 function fetchSharedList(silent){
   const url = getSharedUrl();
   if(!url){ if(!silent) setSharedStatus('Chưa nhập đường dẫn kho lưu chung (Web App URL).', true); return; }
-  if(!silent) setSharedStatus('Đang tải danh sách từ kho chung…', false);
+  if(!silent) setSharedStatus('Đang tải danh sách từ Server', false);
   fetch(url).then(r=>r.json()).then(res=>{
     if(res && res.ok){
       sharedQuotesCache = res.quotes || [];
