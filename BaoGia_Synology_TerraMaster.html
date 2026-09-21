@@ -136,31 +136,16 @@
   <div class="card">
     <h2>Thông tin báo giá <span class="tag">Bước 1</span></h2>
     <div class="grid">
-      <div class="field"><label>Booking ID</label><input type="text" id="quoteNo" placeholder="Booking ID"></div>
+      <div class="field"><label>Booking ID</label><input type="text" id="quoteNo" placeholder="EAVN-BK-2026-001"></div>
       <div class="field"><label>Ngày báo giá</label><input type="date" id="quoteDate"></div>
       <div class="field"><label>Người phụ trách (EAVN)</label><input type="text" id="salesRep" placeholder="Tên nhân viên kinh doanh"></div>
       <div class="field"><label>Khách hàng / Đơn vị</label><input type="text" id="custName" placeholder="Tên công ty khách hàng"></div>
     </div>
   </div>
 
-  <!-- ============ SAVE / RELOAD ============ -->
-  <div class="card no-print">
-    <h2>Lưu &amp; xem lại báo giá <span class="tag">Bước 2</span></h2>
-    <p class="hint">Lưu lại báo giá này (theo Booking ID) để xem hoặc chỉnh sửa lại sau — lưu ngay trên máy/trình duyệt đang dùng.</p>
-    <div class="toolbar">
-      <button class="btn amber" onclick="saveQuote()">💾 Lưu báo giá này</button>
-      <div style="display:flex;gap:8px;align-items:center;flex:1;min-width:280px;">
-        <select id="savedQuotesSelect" style="flex:1;"><option value="">— Báo giá đã lưu —</option></select>
-        <button class="btn secondary" onclick="loadSelectedQuote()">📂 Tải lại</button>
-        <button class="btn ghost" style="border:1px solid var(--danger);" onclick="deleteSelectedQuote()">🗑 Xoá</button>
-      </div>
-    </div>
-    <div id="saveStatus" style="font-size:12.5px;color:var(--good);margin-top:6px;"></div>
-  </div>
-
   <!-- ============ OPTION A: SYNOLOGY SHEET ============ -->
   <div class="card">
-    <h2>Phương án A — Bảng giá Synology <span class="tag">Bước 3</span></h2>
+    <h2>Phương án A — Bảng giá Synology <span class="tag">Bước 2</span></h2>
     <p class="hint">Chọn sản phẩm (NAS hoặc ổ cứng) và nhập số lượng — giá tự động lấy theo bảng giá Synology. Nhập % chiết khấu áp dụng riêng cho từng dòng nếu có (ví dụ theo chương trình giá của Synology cho model/khách hàng đó).</p>
     <table class="sheet optionA">
       <thead><tr>
@@ -197,9 +182,34 @@
         <th>Thành tiền</th>
       </tr></thead>
       <tbody id="sheetB"></tbody>
-      <tfoot><tr><td colspan="4">TỔNG PHƯƠNG ÁN B</td><td class="num" id="footB">0 ₫</td></tr></tfoot>
+      <tfoot><tr><td colspan="4">Tổng đối chiếu tự động (theo BOM Synology)</td><td class="num" id="footBAuto">0 ₫</td></tr></tfoot>
     </table>
     <div class="advisory-box" id="advisoryBox"></div>
+  </div>
+
+  <!-- ============ OPTION B MANUAL: ADD TERRAMASTER/TOSHIBA/WD SKUs DIRECTLY ============ -->
+  <div class="card">
+    <h2>Phương án B — Thêm sản phẩm TerraMaster/Toshiba/WD khác</h2>
+    <p class="hint">Chọn trực tiếp thêm SKU TerraMaster, DAS, phụ kiện, ổ cứng Toshiba hoặc Western Digital không có trong BOM Synology bên trên (ví dụ: bán kèm phụ kiện, nâng cấp, hoặc chào thêm sản phẩm khác) — cộng thẳng vào tổng Phương án B.</p>
+    <table class="sheet optionB">
+      <thead><tr>
+        <th style="width:36px;">#</th>
+        <th style="width:38%;">Product Name</th>
+        <th style="width:90px;">Quantity</th>
+        <th>Đơn giá</th>
+        <th style="width:100px;">Chiết khấu %</th>
+        <th>Thành tiền</th>
+        <th class="no-print" style="width:34px;"></th>
+      </tr></thead>
+      <tbody id="sheetBManual"></tbody>
+      <tfoot><tr><td colspan="5">Tổng sản phẩm thêm riêng</td><td class="num" id="footBManual">0 ₫</td><td class="no-print"></td></tr></tfoot>
+    </table>
+    <div style="margin-top:10px;">
+      <button class="btn secondary no-print" onclick="addRowB()">+ Thêm dòng sản phẩm TerraMaster/Toshiba</button>
+    </div>
+    <div class="savings-line" style="background:var(--teal-light);color:var(--navy-dark);margin-top:14px;">
+      <span>TỔNG CỘNG PHƯƠNG ÁN B (đối chiếu tự động + thêm riêng)</span><b id="footBGrand">0 ₫</b>
+    </div>
   </div>
 
   <!-- ============ OPTION B ALT: LOWER-COST REFERENCE ============ -->
@@ -223,7 +233,7 @@
 
   <!-- ============ SUMMARY ============ -->
   <div class="card">
-    <h2>Tổng hợp báo giá <span class="tag">Bước 4</span></h2>
+    <h2>Tổng hợp báo giá <span class="tag">Bước 3</span></h2>
     <div class="summary-grid">
       <div class="summary-card a" id="sumCardA">
         <h3>Phương án A — Nguyên bản Synology</h3>
@@ -253,1026 +263,40 @@
       <div class="sig-box"><div class="role">Xác nhận của Khách hàng</div><div class="sig-line">Họ tên, chữ ký, ngày</div></div>
     </div>
     <div class="footnote">
-      Báo giá do EAVN (eascs.com.vn) — Nhà phân phối chính thức TerraMaster &amp; Toshiba tại Việt Nam — lập tự động từ bảng giá nội bộ. Giá đã bao gồm VAT.
+      Báo giá do EAVN (eascs.com.vn) — Nhà phân phối chính thức TerraMaster &amp; Toshiba tại Việt Nam — lập tự động từ bảng giá nội bộ. Giá chưa bao gồm VAT trừ khi có ghi chú khác.
     </div>
+  </div>
+
+  <!-- ============ SAVE / RELOAD (nội bộ, không hiển thị nơi lưu) ============ -->
+  <div class="card no-print">
+    <h2>Lưu &amp; xem lại báo giá</h2>
+    <div id="sharedUrlWrap" style="display:none;">
+      <input type="text" id="sharedStoreUrl" value="https://script.google.com/macros/s/AKfycbx1d4weWdnvsty1ULCzKGN4GCtxXmVzbwstgccGtuzkdC4ntppH_ZwvYVrvfa79r6yw/exec" onchange="onSharedUrlChange(this.value)">
+    </div>
+    <p class="hint" style="margin-bottom:10px;">Lưu vào kho chung để mọi sales cùng xem/sửa lại được, không sợ mất khi đổi máy.</p>
+    <div class="toolbar">
+      <button class="btn amber" onclick="saveToSharedStore()">☁️ Lưu vào kho chung</button>
+      <div style="display:flex;gap:8px;align-items:center;flex:1;min-width:280px;">
+        <select id="sharedQuotesSelect" style="flex:1;"><option value="">— Bấm "Tải danh sách" trước —</option></select>
+        <button class="btn secondary" onclick="fetchSharedList()">🔄 Tải danh sách</button>
+        <button class="btn secondary" onclick="loadSelectedSharedQuote()">📂 Mở</button>
+      </div>
+    </div>
+    <div id="sharedStatus" style="font-size:12.5px;color:var(--good);margin-top:6px;"></div>
+
+    <p class="hint" style="margin:16px 0 10px;border-top:1px dashed var(--line);padding-top:12px;"><b>Lưu cá nhân (file trên máy)</b> — dùng khi muốn giữ thêm 1 bản riêng.</p>
+    <div class="toolbar">
+      <button class="btn secondary" onclick="saveQuote()">💾 Lưu báo giá này (tải file .json)</button>
+      <button class="btn secondary" onclick="document.getElementById('loadFileInput').click()">📂 Mở file đã lưu…</button>
+      <input type="file" id="loadFileInput" accept="application/json,.json" style="display:none;" onchange="loadQuoteFromFile(this.files[0])">
+    </div>
+    <div id="saveStatus" style="font-size:12.5px;color:var(--good);margin-top:6px;"></div>
   </div>
 
 </div>
 
 <script>
-const DATA = {
-"synologyNAS":[
-{
-"model":"DS124",
-"desc":"1-bay Plus series model with Realtek RTD1619B 1.7GHz quad-core processor,1 GB non-ECC DDR4 onboard (non-upgradable), Built-in 1 x 1GbE RJ-45 LAN ports and 2 x USB 3.2 Gen 1 ports. Support Btrfs file system",
-"price":3870000
-},
-{
-"model":"DS223",
-"desc":"2-bay DiskStation , Realtek RTD1619B quad-core processor ,2GB non-ECC DDR4 (non-upgradable)",
-"price":7410000
-},
-{
-"model":"DS223j",
-"desc":"2-bay DiskStation, Quad Core , 1GB RAM , 1 x 1GbE RJ-45 , supporting Btrfs and Snapshot Replication (available in DSM 7.2)",
-"price":5040000
-},
-{
-"model":"DS225+",
-"desc":"2-bay Plus series model  with Intel Celeron J4125 quad-core, 2 GB non-ECC DDR4 SODIMM by default, Built-in 1 x 2.5GbE and 1 x 1GbE RJ-45 LAN port",
-"price":8900000
-},
-{
-"model":"DS725+",
-"desc":"2-bay Plus series model (up to 7 bay) with AMD Ryzen R1600, 4 GB DDR4 ECC SODIMM, and is upgradeable to 32 GB,Built-in two M.2 NVMe slots and 1 x 2.5GbE and 1 x 1GbE RJ-45 LAN port",
-"price":20810000
-},
-{
-"model":"DS725neo+",
-"desc":"2-bay Plus series model (up to 7 bay) with AMD Ryzen R1600, 4 GB DDR4 Non-ECC SODIMM, and is upgradeable to 32 GB,Built-in two M.2 NVMe slots and 1 x 2.5GbE and 1 x 1GbE RJ-45 LAN port",
-"price":14850000
-},
-{
-"model":"DS423",
-"desc":"4-bay Value series Realtek RTD1619B quad-core processor ,2GB non-ECC DDR4 onboard (non-upgradable), 2 x 1GbE RJ-45 ports ,2 x USB 3.2 ports.",
-"price":9470000
-},
-{
-"model":"DS425+",
-"desc":"4-bay Plus series model with Intel Celeron J4125 quad-core processor, 2 GB DDR4 non-ECC SODIMM by default and upgradeable to 6 GB,Built-in two M.2 NVMe slots and 1 x 2.5GbE and 1 x 1GbE RJ-45 LAN port",
-"price":13370000
-},
-{
-"model":"DS925+",
-"desc":"4-bay Plus series model (up to 9-bay) with AMD Ryzen V1500B (4-core), 4 GB DDR4 SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports",
-"price":22330000
-},
-{
-"model":"DS925neo+",
-"desc":"4-bay Plus series model (up to 9-bay) with AMD Ryzen V1500B (4-core), 4 GB DDR4 Non-ECC SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports",
-"price":16370000
-},
-{
-"model":"DS1525+",
-"desc":"5-bay Plus series model (up to 15-bay) with AMD Ryzen V1500B, 8 GB DDR4 SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports 10GbE expansion options available via E10G22-T1-Mini",
-"price":32050000
-},
-{
-"model":"DS1525neo+",
-"desc":"5-bay Plus series model (up to 15-bay) with AMD Ryzen V1500B, 4 GB DDR4 Non-ECC SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports 10GbE expansion options available via E10G22-T1-Mini",
-"price":23280000
-},
-{
-"model":"DS1823xs+",
-"desc":"8 bay DiskStation (up to 18-bay), AMD Ryzen V1780B quad-core , 8GB RAM (up to 32GB), Built-in 1x10GbE , 1 x management port for out-of-band management and 2 x M.2 2280 NVMe slots. support Synology HDD & SSD ONLY.",
-"price":42370000
-},
-{
-"model":"DS1825+",
-"desc":"8-bay Plus series model (up to 18-bay) with AMD Ryzen V1500B, 8 GB DDR4 SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports, PCIe 3.0 slot for optional 10GBASE-T or 10/25Gb SFP+/SFP28 adapter cards",
-"price":37870000
-},
-{
-"model":"DS1825neo+",
-"desc":"8-bay Plus series model (up to 18-bay) with AMD Ryzen V1500B, 4 GB DDR4 Non-ECC SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports, PCIe 3.0 slot for optional 10GBASE-T or 10/25Gb SFP+/SFP28 adapter cards",
-"price":29130000
-},
-{
-"model":"DS2422+",
-"desc":"12-bay DiskStation (up to 24-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 10GbE NIC & M.2 SATA SSD support (optional)",
-"price":47690000
-},
-{
-"model":"DS3622xs+",
-"desc":"12-bay DiskStation (up to 36-bay), 6-Core 2.2 GHz (turbo to 2.7GHz), 16GB RAM (up to 48GB)",
-"price":74190000
-},
-{
-"model":"DS620slim",
-"desc":"6-bay DiskStation, Dual Core 2.0 GHz (turbo to 2.5 GHz), 2GB RAM (up to 6GB)",
-"price":11910000
-},
-{
-"model":"FS200T",
-"desc":"6-bay 2.5\" SATA all-flash storage, Quad Core, 4GB RAM (up to 8GB)",
-"price":23810000
-},
-{
-"model":"FS2500",
-"desc":"12-bay 2.5'' SATA All-flash storage, 4 Core 3.35 GHz (turbo to 3.6 GHz), 8GB RAM (up to 32GB), 2x10GbE Base T, Redundant power",
-"price":91420000
-},
-{
-"model":"RS1626xs+",
-"desc":"4-bay Expandable up to 16 drives by connecting to RX1225RP via mini-SAS HD expansion cable, featuring dual 10GbE ports, 16GB DDR4 RAM (upgradeable to 64GB), two M.2 NVMe slots, PCIe 4.0 expansion, and 5-year warranty.",
-"price":104390000
-},
-{
-"model":"RS422+",
-"desc":"4-bay RackStation, dual Core , 2GB DDR4 ECC",
-"price":26190000
-},
-{
-"model":"RS826+",
-"desc":"4-bay RackStation (up to 8-bay), AMD Ryzen V1500B, 4GB RAM (up to 32 GB), 10/25GbE NIC support (optional)",
-"price":40670000
-},
-{
-"model":"RS826RP+",
-"desc":"4-bay RackStation (up to 8-bay), AMD Ryzen V1500B, 4GB RAM (up to 32 GB), 10/25GbE NIC support (optional)",
-"price":46480000
-},
-{
-"model":"FS3420",
-"desc":"24-bay Xeon D-1739 model, featuring dual 10GbE ports, 32GB DDR4 RAM (upgradeable to 192GB), PCIe 4.0 expansion, and a 5-year warranty (not expandable).",
-"price":297590000
-},
-{
-"model":"FS6420",
-"desc":"24-bay all-flash model featuring dual 10GbE ports, 64GB DDR4 RAM (upgradeable to 1024GB), PCIe 4.0 expansion, and a 5-year warranty.",
-"price":474340000
-},
-{
-"model":"RS1221+",
-"desc":"8-bay RackStation (up to 12-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 10GbE NIC & M.2 SSD support (optional)",
-"price":40670000
-},
-{
-"model":"RS1221RP+",
-"desc":"8-bay RackStation (up to 12-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 10GbE NIC & M.2 SSD support (optional)",
-"price":52260000
-},
-{
-"model":"RS1226+",
-"desc":"8-bay RackStation (up to 12-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 2 x 2.5GbE ports as standard, 10/25 GbE NIC support (optional), Bult-in M.2 2280 NVME Slots",
-"price":45610000
-},
-{
-"model":"RS1226RP+",
-"desc":"8-bay RackStation (up to 12-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 2 x 2.5GbE ports as standard, 10/25 GbE NIC support (optional), Bult-in M.2 2280 NVME Slots, Redundant power",
-"price":55180000
-},
-{
-"model":"RS2423+",
-"desc":"12-bay Plus series , AMD Ryzen V1780B quad-core processor ,8GB DDR4 ECC default memory , expandable up to 32GB, 10GbE RJ-45 , 2 x 1GbE ports , Support RX1223RP expansion unit only",
-"price":67630000
-},
-{
-"model":"RS2423RP+II",
-"desc":"12-bay RackStation (up to 24-bay),AMD Ryzen V1780, 8GB DDR4 ECC default memory, expandable up to 32GB,1x 10GbE RJ-45 and 2 x 1GbE ports, 1 × PCIe 3.0 slot",
-"price":81250000
-},
-{
-"model":"RS3618xs",
-"desc":"12-bay RackStation (up to 36-bay), Quad Core 2.4 GHz (turbo to 2.7 GHz), 8GB RAM (up to 64GB), 10GbE NIC support (optional)",
-"price":81250000
-},
-{
-"model":"RS3626xs",
-"desc":"12-bay Xeon D-1726 model, expandable up to 36 drives via 2x RX1225RP, featuring dual 10GbE ports, 8GB DDR4 RAM (upgradeable to 48GB), PCIe 4.0 expansion, and a 5-year warranty.",
-"price":118870000
-},
-{
-"model":"RS4826xs+",
-"desc":"12-bay Xeon D-1739 model, expandable up to 48 drives via 3x RX1225RP, featuring dual 10GbE ports, 16GB DDR4 RAM (upgradeable to 96GB), PCIe 4.0 expansion, and a 5-year warranty.",
-"price":147800000
-},
-{
-"model":"SA3400D",
-"desc":"12-bay active-passive NAS.  8-core processor , 8GB ECC UDIMM per controller  expandable up to 64GB , PCIe: 1 x 3.0 x8 slot per controller , supports up to 36 drives with 2 x RXD1219sas",
-"price":268140000
-},
-{
-"model":"SA3410",
-"desc":"< Tentative to Launch end of Q1 >12-bay RackStation (Supports up to 7 x RX1222sas expansion units) ,Xeon D-1541 CPU, 8-core 2.1 (base) / 2.7 (turbo) GHz , 16GB ECC RDIMM ,expandable up to 128GB  ,  2 x 10GbE  ,Redundant power, SAS compatible",
-"price":165070000
-},
-{
-"model":"HD6500",
-"desc":"60-bay RackStation (up to 300-bay)",
-"price":503790000
-},
-{
-"model":"PAS7700",
-"desc":"48-bay NVMe Expandable up to 216 drives with expansions, AMD EPYC 24-core, 64 GB DDR4 ECC RDIMM by default and upgradeable to 1,024 GB (64 GB x 16) per controller.Two built-in 10GbE and one 1GbE RJ-45 (for Out-of-Band management) ports per controller. 5-year warranty.",
-"price":1768390000
-},
-{
-"model":"RS11626xs+",
-"desc":"20-bay (16x 3.5\" + 4x 2.5\") model, expandable up to 116 drives via 8x RX1222sas, featuring dual 10GbE ports, 64GB DDR4 RAM (upgradeable to 1024GB), two M.2 NVMe slots, PCIe 4.0 expansion, and a 5-year warranty.",
-"price":249140000
-},
-{
-"model":"RS2825RP+",
-"desc":"16-bay RackStation (up to 28-bay), AMD Ryzen V1780B , Built-in 1 x 10GbE RJ-45 port and 2 x 1GbE RJ-45 ports , 8 GB DDR4 ECC UDIMM, expandable up to 32 GB (16 GB x 2)",
-"price":89890000
-},
-{
-"model":"RS6426xs+",
-"desc":"16-bay Xeon D-1739 model, expandable up to 64 drives via 4x RX1225RP, featuring dual 10GbE ports, 16GB DDR4 RAM (upgradeable to 96GB), PCIe 4.0 expansion, and a 5-year warranty.",
-"price":176750000
-},
-{
-"model":"UC3200",
-"desc":"12-bay Dual Controller Active-Active iSCSI Server (up to 36-bay), Quad Core 2.4GHz (turbo to 2.7GHz), 8GB RAM (up to 64GB),  1x10GbE Base T, SAS compatible",
-"price":179770000
-}
-],
-"terraMasterNAS":[
-{
-"model":"F2-425",
-"desc":"Intel Celeron N5095  Quad Core 2.0GHz, 4GB DDR4, 2.5GbE X1, USB 3.2 X3",
-"gp15":6470000,
-"gp20":6750000,
-"bullets":[
-"CPU N5095 Quad Core 2.0GHz",
-"RAM 4GB DDR4",
-"LAN 2.5GbE x1"
-]
-},
-{
-"model":"F2-425 Plus",
-"desc":"Intel N150 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, USB 3.2 X3",
-"gp15":10720000,
-"gp20":11190000,
-"bullets":[
-"CPU Intel N150 (turbo 3.4GHz)",
-"RAM 8GB DDR5",
-"LAN 5GbE x2"
-]
-},
-{
-"model":"F2-425 Plus-N95",
-"desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, M.2 x 3,USB 3.2 X3",
-"gp15":10380000,
-"gp20":10830000,
-"bullets":[
-"CPU Intel N95 (turbo 3.4GHz)",
-"RAM 8GB DDR5",
-"LAN 5GbE x2",
-"3x khe M.2 NVMe"
-]
-},
-{
-"model":"F4-425",
-"desc":"Intel Celeron N5095  Quad Core 2.0GHz, 4GB DDR4, 2.5GbE X1, USB 3.2 X3",
-"gp15":9360000,
-"gp20":9770000,
-"bullets":[
-"CPU N5095 Quad Core 2.0GHz",
-"RAM 4GB DDR4",
-"LAN 2.5GbE x1"
-]
-},
-{
-"model":"F4-425 Plus",
-"desc":"Intel N150 Quad Core (up to 3.40 GHz) 16GB DDR5, 5GbE X2, USB 3.2 X3",
-"gp15":14130000,
-"gp20":14740000,
-"bullets":[
-"CPU Intel N150 (turbo 3.4GHz)",
-"RAM 16GB DDR5",
-"LAN 5GbE x2"
-]
-},
-{
-"model":"F4-425 Plus-N95",
-"desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, M.2 x 3,USB 3.2 X3",
-"gp15":12770000,
-"gp20":13320000,
-"bullets":[
-"CPU Intel N95 (turbo 3.4GHz)",
-"RAM 8GB DDR5",
-"LAN 5GbE x2",
-"3x khe M.2 NVMe"
-]
-},
-{
-"model":"F4-425 Pro -N305",
-"desc":"Intel Core i3-N305 8-Core (up to 3.80 GHz) 8GB DDR4, 5GbE X2, M.2 x 3,USB 3.2 X3",
-"gp15":15660000,
-"gp20":16340000,
-"bullets":[
-"CPU i3-N305 8-core (turbo 3.8GHz)",
-"RAM 8GB DDR4",
-"LAN 5GbE x2",
-"3x khe M.2 NVMe"
-]
-},
-{
-"model":"F6-424",
-"desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 2.5GbE x2",
-"gp15":15320000,
-"gp20":15980000,
-"bullets":[
-"CPU Intel N95 (turbo 3.4GHz)",
-"RAM 8GB DDR5",
-"LAN 2.5GbE x2"
-]
-},
-{
-"model":"F6-424 Max",
-"desc":"Intel i5-1235U 10 Core NAS  16GB DDR5,  10GbE x2",
-"gp15":22530000,
-"gp20":23510000,
-"bullets":[
-"CPU i5-1235U 10-core",
-"RAM 16GB DDR5",
-"LAN 10GbE x2"
-]
-},
-{
-"model":"F4 SSD",
-"desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE x1",
-"gp15":10550000,
-"gp20":11010000,
-"bullets":[
-"All-flash 4-khay M.2",
-"CPU N95, RAM 8GB DDR5",
-"LAN 5GbE x1"
-]
-},
-{
-"model":"F8 SSD",
-"desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 10GbE x1",
-"gp15":13960000,
-"gp20":14560000,
-"bullets":[
-"All-flash 8-khay M.2",
-"CPU N95, RAM 8GB DDR5",
-"LAN 10GbE x1"
-]
-},
-{
-"model":"F8 SSD Plus",
-"desc":"Intel Core i3 N305 8-Core (up to 3.80 GHz) 16GB DDR5, 10GbE x1",
-"gp15":20080000,
-"gp20":20950000,
-"bullets":[
-"All-flash 8-khay M.2",
-"CPU i3-N305 8-core, RAM 16GB DDR5",
-"LAN 10GbE x1"
-]
-},
-{
-"model":"T9-500 Pro",
-"desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2",
-"gp15":40840000,
-"gp20":42610000,
-"bullets":[
-"CPU i7-1255U 10-core (tower)",
-"RAM 16GB DDR5",
-"LAN 10GbE x2"
-]
-},
-{
-"model":"T12-500 Pro",
-"desc":"Intel i7-1255U 10 Core NAS  16GB DDR5, 10GbE X2",
-"gp15":44240000,
-"gp20":46170000,
-"bullets":[
-"CPU i7-1255U 10-core (tower)",
-"RAM 16GB DDR5",
-"LAN 10GbE x2"
-]
-},
-{
-"model":"U4-500",
-"desc":"Intel i3-1215U 6 Cores 8 Threads, 8GB DDR5, 10GbE x2, M.2 x2, Short Depth RackMount NAS",
-"gp15":19740000,
-"gp20":20600000,
-"bullets":[
-"Rack short-depth 4-khay",
-"CPU i3-1215U 6-core/8-thread, RAM 8GB DDR5",
-"LAN 10GbE x2",
-"2x khe M.2 NVMe"
-]
-},
-{
-"model":"U8-500 Plus",
-"desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2",
-"gp15":40840000,
-"gp20":42610000,
-"bullets":[
-"Rack 8-khay",
-"CPU i7-1255U 10-core, RAM 16GB DDR5",
-"LAN 10GbE x2"
-]
-},
-{
-"model":"U12-500 Plus",
-"desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2",
-"gp15":44240000,
-"gp20":46170000,
-"bullets":[
-"Rack 12-khay",
-"CPU i7-1255U 10-core, RAM 16GB DDR5",
-"LAN 10GbE x2"
-]
-},
-{
-"model":"U8-725",
-"desc":"Intel Xeon D-2712T  4Cores 8Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2",
-"gp15":76570000,
-"gp20":79900000,
-"bullets":[
-"Rack 8-khay",
-"CPU Xeon D-2712T 4C/8T, RAM 16GB ECC DDR4",
-"LAN SFP+ 10GbE x4 + RJ45 5GbE x2"
-]
-},
-{
-"model":"U12-725",
-"desc":"Intel Xeon D-2712T  4Cores 8Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2",
-"gp15":86780000,
-"gp20":90550000,
-"bullets":[
-"Rack 12-khay",
-"CPU Xeon D-2712T 4C/8T, RAM 16GB ECC DDR4",
-"LAN SFP+ 10GbE x4 + RJ45 5GbE x2"
-]
-},
-{
-"model":"U12-725 Plus",
-"desc":"Intel Xeon D-2733NT  8Cores 16Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2",
-"gp15":110600000,
-"gp20":115410000,
-"bullets":[
-"Rack 12-khay",
-"CPU Xeon D-2733NT 8C/16T, RAM 16GB ECC DDR4",
-"LAN SFP+ 10GbE x4 + RJ45 5GbE x2"
-]
-},
-{
-"model":"U16-725 Plus",
-"desc":"Intel Xeon D-2733NT  8Cores 16Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2",
-"gp15":127610000,
-"gp20":133160000,
-"bullets":[
-"Rack 16-khay",
-"CPU Xeon D-2733NT 8C/16T, RAM 16GB ECC DDR4",
-"LAN SFP+ 10GbE x4 + RJ45 5GbE x2"
-]
-}
-],
-"toshibaN300":[
-{
-"model":"HDWG740AZSTC",
-"desc":"Toshiba 3.5\" N300 24x7 4TB Gold 7200rpm 512MB",
-"gp15":7144000,
-"gp20":7590500,
-"tb":4
-},
-{
-"model":"HDWG760AZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 6TB Gold 7200rpm 512MB",
-"gp15":8840000,
-"gp20":9392500,
-"tb":6
-},
-{
-"model":"HDWG780AZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 8TB Gold 7200rpm 512MB",
-"gp15":9344000,
-"gp20":9928000,
-"tb":8
-},
-{
-"model":"HDWG71AAZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 10TB Gold 7200rpm 512MB",
-"gp15":11536000,
-"gp20":12257000,
-"tb":10
-},
-{
-"model":"HDWG51CAZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 12TB  Gold 7200rpm 512MB",
-"gp15":13968000,
-"gp20":14841000,
-"tb":12
-},
-{
-"model":"HDWG51EAZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 14TB  Gold 7200rpm 512MB",
-"gp15":15360000,
-"gp20":16320000,
-"tb":14
-},
-{
-"model":"HDWG51GAZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 16TB  Gold 7200rpm 1024MB",
-"gp15":16408000,
-"gp20":17433500,
-"tb":16
-},
-{
-"model":"HDWG51JAZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 18TB  Gold 7200rpm 1024MB",
-"gp15":18152000,
-"gp20":19286500,
-"tb":18
-},
-{
-"model":"HDWG62AAZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 20TB  Gold 7200rpm 1024MB",
-"gp15":19544000,
-"gp20":20765500,
-"tb":20
-},
-{
-"model":"HDWG82CAZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 22TB  Gold 7200rpm 1024MB",
-"gp15":21288000,
-"gp20":22618500,
-"tb":22
-},
-{
-"model":"HDWG82EAZSTA",
-"desc":"Toshiba 3.5\" N300 24x7 24TB  Gold 7200rpm 1024MB",
-"gp15":22648000,
-"gp20":24063500,
-"tb":24
-}
-],
-"toshibaMG":[
-{
-"model":"MG10ADA400E",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 4TB SATA 7200RPM, 6Gbps",
-"gp15":7680000,
-"gp20":8160000,
-"tb":4
-},
-{
-"model":"MG10ADA600E",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 6TB SATA 7200RPM, 6Gbps",
-"gp15":9360000,
-"gp20":9945000,
-"tb":6
-},
-{
-"model":"MG10ADA800E",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 8TB SATA 7200RPM, 6Gbps",
-"gp15":9680000,
-"gp20":10285000,
-"tb":8
-},
-{
-"model":"MG10ADA10TE",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 10TB SATA 7200RPM",
-"gp15":11680000,
-"gp20":12410000,
-"tb":10
-},
-{
-"model":"MG09ACA12TE",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 12TB SATA 7200RPM",
-"gp15":14160000,
-"gp20":15045000,
-"tb":12
-},
-{
-"model":"MG09ACA14TE",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 14TB SATA 7200RPM, 6Gbps",
-"gp15":15520000,
-"gp20":16490000,
-"tb":14
-},
-{
-"model":"MG11ACA16TE",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 16TB SATA 7200RPM, 6Gbps",
-"gp15":16560000,
-"gp20":17595000,
-"tb":16
-},
-{
-"model":"MG11ACA18TE",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 18TB SATA 7200RPM, 6Gbps",
-"gp15":18000000,
-"gp20":19125000,
-"tb":18
-},
-{
-"model":"MG11ACA20TE",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 20TB SATA 7200RPM, 6Gbps",
-"gp15":19760000,
-"gp20":20995000,
-"tb":20
-},
-{
-"model":"MG11ACA22TE",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 22TB SATA 7200RPM, 6Gbps",
-"gp15":21120000,
-"gp20":22440000,
-"tb":22
-},
-{
-"model":"MG11ACA24TE",
-"desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 24TB SATA 7200RPM, 1GiB",
-"gp15":22880000,
-"gp20":24310000,
-"tb":24
-}
-],
-"synologyHDDPlus":[
-{
-"model":"HAT3300-4T",
-"desc":"4TB 3.5” , 5,400 rpm Synology Plus Series HDD SATA HDD",
-"price":5770000,
-"tb":4
-},
-{
-"model":"HAT3300-6T",
-"desc":"6TB 3.5” , 5,400 rpm Synology Plus Series HDD SATA HDD",
-"price":8270000,
-"tb":6
-},
-{
-"model":"HAT3310-12T",
-"desc":"12TB 3.5” , 7,200rpm Synology Plus Series HDD SATA HDD",
-"price":14410000,
-"tb":12
-},
-{
-"model":"HAT3310-16T",
-"desc":"16TB 3.5” , 7,200rpm, Helium-sealed design, Synology Plus Series HDD SATA HDD",
-"price":17230000,
-"tb":16
-},
-{
-"model":"HAT3320-20T",
-"desc":"20TB 3.5” , Synology Plus Series HDD SATA HDD",
-"price":20580000,
-"tb":20
-},
-{
-"model":"HAT3320-8T",
-"desc":"8TB 3.5” Synology Plus Series HDD SATA HDD",
-"price":11260000,
-"tb":8
-}
-],
-"synologyHDDEnt":[
-{
-"model":"HAT5300-12T",
-"desc":"12TB 3.5” Enterprise-Grade SATA HDD",
-"price":18430000,
-"tb":12
-},
-{
-"model":"HAT5310-16T",
-"desc":"16TB 3.5” Enterprise-Grade SATA HDD",
-"price":23050000,
-"tb":16
-},
-{
-"model":"HAT5320-20T",
-"desc":"20 TB 3.5” Enterprise-Grade SATA HDD",
-"price":26130000,
-"tb":20
-},
-{
-"model":"HAT5320-24T",
-"desc":"24 TB 3.5” Enterprise-Grade SATA HDD",
-"price":30750000,
-"tb":24
-},
-{
-"model":"HAT5320-4T",
-"desc":"4 TB 3.5” Enterprise-Grade SATA HDD",
-"price":10740000,
-"tb":4
-},
-{
-"model":"HAT5320-8T",
-"desc":"8 TB 3.5” Enterprise-Grade SATA HDD",
-"price":15360000,
-"tb":8
-}
-],
-"synologyHDDSas":[
-{
-"model":"HAS5310-12T",
-"desc":"",
-"price":21500000,
-"tb":12
-},
-{
-"model":"HAS5310-20T",
-"desc":"20 TB 3.5” Enterprise-Grade SAS HDD",
-"price":27650000,
-"tb":20
-},
-{
-"model":"HAS5320-24T",
-"desc":"24 TB 3.5” Enterprise-Grade SAS HDD",
-"price":33820000,
-"tb":24
-}
-],
-"mapping":[
-{
-"syno":"DS124",
-"tm":null,
-"bays":2,
-"note":"TerraMaster hiện chưa có dòng NAS 1-khay tương đương. Đề xuất gần nhất là F2-425 (2 khay) — dư 1 khay để mở rộng dung lượng ngay từ đầu.",
-"caveat":"Không phải cấu hình 1:1 — chênh lệch số khay."
-},
-{
-"syno":"DS223",
-"tm":"F2-425",
-"bays":2,
-"note":"Cùng phân khúc Value 2-khay, CPU lõi tứ, đáp ứng nhu cầu lưu trữ/chia sẻ file cơ bản.",
-"caveat":null
-},
-{
-"syno":"DS223j",
-"tm":"F2-425",
-"bays":2,
-"note":"Cùng phân khúc Value 2-khay entry-level.",
-"caveat":null
-},
-{
-"syno":"DS225+",
-"tm":"F2-425 Plus-N95",
-"bays":2,
-"note":"Vượt trội hơn bản Plus của Synology: CPU N95, RAM DDR5 8GB, 5GbE x2 (so với 2.5GbE+1GbE) và có sẵn 3 khe M.2 NVMe.",
-"caveat":null
-},
-{
-"syno":"DS725+",
-"tm":"F2-425 Plus-N95",
-"bays":2,
-"note":"Cùng phân khúc Plus 2-khay có khe NVMe; băng thông mạng 5GbE x2 cao hơn.",
-"caveat":"RAM TerraMaster là DDR5 non-ECC — nếu khách yêu cầu bắt buộc ECC ở 2-khay, cần trao đổi rõ trước khi báo giá."
-},
-{
-"syno":"DS725neo+",
-"tm":"F2-425 Plus-N95",
-"bays":2,
-"note":"Bản neo+ của Synology cũng dùng RAM non-ECC nên tương đồng về phân khúc.",
-"caveat":null
-},
-{
-"syno":"DS423",
-"tm":"F4-425",
-"bays":4,
-"note":"Cùng phân khúc Value 4-khay.",
-"caveat":null
-},
-{
-"syno":"DS425+",
-"tm":"F4-425 Plus-N95",
-"bays":4,
-"note":"Vượt trội hơn: 5GbE x2, 3 khe M.2 NVMe (Synology chỉ 2 khe M.2, 2.5GbE+1GbE).",
-"caveat":null
-},
-{
-"syno":"DS925+",
-"tm":"F4-425 Pro -N305",
-"bays":4,
-"note":"Mạnh hơn hẳn: CPU i3-N305 8-core so với Ryzen V1500B 4-core, cùng 5GbE x2 và 3 khe NVMe.",
-"caveat":"RAM DDR4 non-ECC — cần lưu ý nếu khách yêu cầu ECC bắt buộc."
-},
-{
-"syno":"DS925neo+",
-"tm":"F4-425 Pro -N305",
-"bays":4,
-"note":"Bản neo+ dùng RAM non-ECC nên F4-425 Pro-N305 là đối trọng hợp lý và mạnh hơn về CPU.",
-"caveat":null
-},
-{
-"syno":"DS1525+",
-"tm":"F6-424",
-"bays":6,
-"note":"Dư 1 khay (6 so với 5), băng thông 2.5GbE x2 tương đương; đủ đáp ứng nhu cầu mở rộng.",
-"caveat":"Nếu khách cần 10GbE ngay, đề xuất nâng cấp F6-424 Max."
-},
-{
-"syno":"DS1525neo+",
-"tm":"F6-424",
-"bays":6,
-"note":"Tương tự DS1525+, F6-424 là phương án cân bằng chi phí/hiệu năng.",
-"caveat":null
-},
-{
-"syno":"DS1823xs+",
-"tm":"U8-725",
-"bays":8,
-"note":"Vượt trội rõ rệt: Xeon D-2712T, RAM 16GB ECC DDR4, SFP+ 10GbE x4 (so với 1x10GbE). Đặc biệt: không khoá ổ cứng theo hãng như DS1823xs+ (chỉ dùng được ổ Synology).",
-"caveat":null
-},
-{
-"syno":"DS1825+",
-"tm":"U8-725",
-"bays":8,
-"note":"Mạnh hơn: RAM ECC 16GB, kết nối SFP+ 10GbE x4 built-in thay vì phải mua card PCIe rời.",
-"caveat":null
-},
-{
-"syno":"DS1825neo+",
-"tm":"U8-725",
-"bays":8,
-"note":"Cùng lý do như DS1825+, U8-725 vượt trội về RAM ECC và cổng mạng built-in.",
-"caveat":null
-},
-{
-"syno":"DS2422+",
-"tm":"U12-725",
-"bays":12,
-"note":"Cùng 12-khay; U12-725 có sẵn SFP+ 10GbE x4 built-in (DS2422+ 10GbE là tuỳ chọn thêm).",
-"caveat":null
-},
-{
-"syno":"DS3622xs+",
-"tm":"U12-725 Plus",
-"bays":12,
-"note":"Cùng 12-khay phân khúc cao; CPU Xeon D-2733NT 8-core/16-thread mạnh hơn, RAM 16GB ECC.",
-"caveat":null
-},
-{
-"syno":"DS620slim",
-"tm":null,
-"bays":6,
-"note":"TerraMaster hiện không có dòng NAS chuyên khay ổ 2.5\" như DS620slim.",
-"caveat":"Không có SKU tương đương — nếu khách bắt buộc form-factor 2.5\", cần tư vấn giải pháp khác (vd. DAS D-Hybrid)."
-},
-{
-"syno":"FS200T",
-"tm":"F8 SSD",
-"bays":8,
-"note":"Không có dòng all-flash 6-khay tương đương; F8 SSD (8-khay all-flash, 10GbE) là phương án gần nhất và dư khay.",
-"caveat":"Số khay chênh lệch — cần xác nhận với khách trước khi chào."
-},
-{
-"syno":"FS2500",
-"tm":"F8 SSD Plus",
-"bays":12,
-"note":"F8 SSD Plus (8-khay all-flash, i3-N305, 10GbE) là phương án all-flash cao nhất hiện có của TerraMaster.",
-"caveat":"FS2500 có 12 khay và dual 10GbE — F8 SSD Plus chỉ 8 khay/1x10GbE. Cần trao đổi rõ về khoảng cách hiệu năng trước khi chào."
-},
-{
-"syno":"RS1626xs+",
-"tm":"U4-500",
-"bays":4,
-"note":"Cùng 4-khay dạng rack, 10GbE x2, 2 khe M.2 NVMe.",
-"caveat":"RS1626xs+ mở rộng được lên 16 khay qua RX1225RP — U4-500 không có cổng mở rộng tương ứng; cần nêu rõ giới hạn này."
-},
-{
-"syno":"RS422+",
-"tm":"U4-500",
-"bays":4,
-"note":"Cùng 4-khay dạng rack; U4-500 mạnh hơn nhiều (10GbE x2, NVMe) so với bản 2GB ECC entry của RS422+.",
-"caveat":null
-},
-{
-"syno":"RS826+",
-"tm":"U8-500 Plus",
-"bays":8,
-"note":"Cùng nền tảng 8-khay; U8-500 Plus có sẵn CPU i7-1255U 10-core, RAM 16GB, 10GbE x2 built-in.",
-"caveat":null
-},
-{
-"syno":"RS826RP+",
-"tm":"U8-500 Plus",
-"bays":8,
-"note":"Cùng lý do như RS826+.",
-"caveat":"RS826RP+ có nguồn dự phòng kép (RP = Redundant Power) — cần xác nhận cấu hình nguồn của U8-500 Plus trước khi chào cho khách cần HA nguồn điện."
-},
-{
-"syno":"FS3420",
-"tm":null,
-"bays":24,
-"note":"TerraMaster hiện chưa có dòng 24-khay nền tảng Xeon D tương đương.",
-"caveat":"Không có SKU tương đương ở phân khúc này — đề xuất giữ nguyên Synology hoặc chờ dòng sản phẩm TerraMaster cao cấp hơn."
-},
-{
-"syno":"FS6420",
-"tm":null,
-"bays":24,
-"note":"TerraMaster hiện chưa có dòng all-flash 24-khay tương đương.",
-"caveat":"Không có SKU tương đương — phân khúc all-flash enterprise cao cấp ngoài danh mục hiện tại."
-},
-{
-"syno":"RS1221+",
-"tm":"U8-725",
-"bays":8,
-"note":"Cùng 8-khay; U8-725 có SFP+ 10GbE x4 built-in và RAM ECC 16GB.",
-"caveat":null
-},
-{
-"syno":"RS1221RP+",
-"tm":"U8-725",
-"bays":8,
-"note":"Cùng lý do như RS1221+.",
-"caveat":"Bản RP có nguồn dự phòng kép — cần xác nhận cấu hình nguồn của U8-725."
-},
-{
-"syno":"RS1226+",
-"tm":"U8-725",
-"bays":8,
-"note":"Cùng 8-khay; U8-725 có 2.5/5GbE x2 + SFP+10GbE x4 built-in, vượt trội so với 2.5GbE tiêu chuẩn của RS1226+.",
-"caveat":null
-},
-{
-"syno":"RS1226RP+",
-"tm":"U8-725",
-"bays":8,
-"note":"Cùng lý do như RS1226+.",
-"caveat":"Bản RP có nguồn dự phòng kép — cần xác nhận cấu hình nguồn của U8-725."
-},
-{
-"syno":"RS2423+",
-"tm":"U12-725",
-"bays":12,
-"note":"Cùng 12-khay, RAM ECC; U12-725 có SFP+10GbE x4 built-in.",
-"caveat":null
-},
-{
-"syno":"RS2423RP+II",
-"tm":"U12-725",
-"bays":12,
-"note":"Cùng lý do như RS2423+.",
-"caveat":"Bản RP có nguồn dự phòng kép — cần xác nhận cấu hình nguồn của U12-725."
-},
-{
-"syno":"RS3618xs",
-"tm":"U12-725 Plus",
-"bays":12,
-"note":"Cùng 12-khay phân khúc cao; CPU 8-core/16-thread, RAM 16GB ECC, SFP+10GbE x4.",
-"caveat":null
-},
-{
-"syno":"RS3626xs",
-"tm":"U12-725 Plus",
-"bays":12,
-"note":"Cùng 12-khay nền Xeon D, dual 10GbE; U12-725 Plus có 4 cổng SFP+10GbE.",
-"caveat":null
-},
-{
-"syno":"RS4826xs+",
-"tm":"U12-725 Plus",
-"bays":12,
-"note":"Cùng nền tảng 12-khay cao cấp.",
-"caveat":"RS4826xs+ mở rộng được lên 48 khay qua 3x RX1225RP — U12-725 Plus không có cổng mở rộng tương ứng; cần nêu rõ giới hạn quy mô."
-},
-{
-"syno":"SA3400D",
-"tm":null,
-"bays":12,
-"note":"TOS 7 hiện chưa hỗ trợ High Availability (HA) dual-controller gốc, nên không có SKU thay thế trực tiếp cho dòng active-passive này.",
-"caveat":"Đây là khoảng cách tính năng cần công bố minh bạch với khách hàng yêu cầu HA phần cứng."
-},
-{
-"syno":"SA3410",
-"tm":null,
-"bays":12,
-"note":"U-Series không có cổng SAS gốc (cần card HBA PCIe rời) nên chưa thể thay thế trực tiếp dòng SAS-compatible này.",
-"caveat":"Khoảng cách tính năng SAS — công bố minh bạch với khách."
-},
-{
-"syno":"HD6500",
-"tm":null,
-"bays":60,
-"note":"TerraMaster chưa có dòng NAS quy mô 60-khay tương đương.",
-"caveat":"Không có SKU tương đương — phân khúc siêu lớn ngoài danh mục hiện tại."
-},
-{
-"syno":"PAS7700",
-"tm":null,
-"bays":48,
-"note":"TerraMaster chưa có dòng NVMe all-flash enterprise dual-controller quy mô này.",
-"caveat":"Không có SKU tương đương — phân khúc enterprise cao cấp nhất ngoài danh mục hiện tại."
-},
-{
-"syno":"RS11626xs+",
-"tm":"U16-725 Plus",
-"bays":16,
-"note":"U16-725 Plus (16-khay) là dòng rack lớn nhất hiện có, dùng làm nền tảng khởi điểm.",
-"caveat":"RS11626xs+ mở rộng lên tới 116 khay qua 8x RX1222sas — U16-725 Plus không có cổng mở rộng tương ứng; chỉ phù hợp nếu nhu cầu thực tế ở quy mô 16 khay trở xuống."
-},
-{
-"syno":"RS2825RP+",
-"tm":"U16-725 Plus",
-"bays":16,
-"note":"Cùng 16-khay; U16-725 Plus có RAM ECC 16GB, SFP+10GbE x4 built-in.",
-"caveat":"Bản RP có nguồn dự phòng kép — cần xác nhận cấu hình nguồn."
-},
-{
-"syno":"RS6426xs+",
-"tm":"U16-725 Plus",
-"bays":16,
-"note":"Cùng 16-khay nền Xeon D, dual 10GbE.",
-"caveat":null
-},
-{
-"syno":"UC3200",
-"tm":null,
-"bays":12,
-"note":"TOS 7 chưa hỗ trợ HA dual-controller gốc và U-Series không có cổng SAS gốc — hai khoảng cách tính năng so với UC3200.",
-"caveat":"Không có SKU thay thế phù hợp cho nhu cầu HA + SAS; cần công bố minh bạch với khách."
-}
-]
-};
+const DATA = {"synologyNAS":[{"model":"DS124","desc":"1-bay Plus series model with Realtek RTD1619B 1.7GHz quad-core processor,1 GB non-ECC DDR4 onboard (non-upgradable), Built-in 1 x 1GbE RJ-45 LAN ports and 2 x USB 3.2 Gen 1 ports. Support Btrfs file system","price":3870000},{"model":"DS223","desc":"2-bay DiskStation , Realtek RTD1619B quad-core processor ,2GB non-ECC DDR4 (non-upgradable)","price":7410000},{"model":"DS223j","desc":"2-bay DiskStation, Quad Core , 1GB RAM , 1 x 1GbE RJ-45 , supporting Btrfs and Snapshot Replication (available in DSM 7.2)","price":5040000},{"model":"DS225+","desc":"2-bay Plus series model  with Intel Celeron J4125 quad-core, 2 GB non-ECC DDR4 SODIMM by default, Built-in 1 x 2.5GbE and 1 x 1GbE RJ-45 LAN port","price":8900000},{"model":"DS725+","desc":"2-bay Plus series model (up to 7 bay) with AMD Ryzen R1600, 4 GB DDR4 ECC SODIMM, and is upgradeable to 32 GB,Built-in two M.2 NVMe slots and 1 x 2.5GbE and 1 x 1GbE RJ-45 LAN port","price":20810000},{"model":"DS725neo+","desc":"2-bay Plus series model (up to 7 bay) with AMD Ryzen R1600, 4 GB DDR4 Non-ECC SODIMM, and is upgradeable to 32 GB,Built-in two M.2 NVMe slots and 1 x 2.5GbE and 1 x 1GbE RJ-45 LAN port","price":14850000},{"model":"DS423","desc":"4-bay Value series Realtek RTD1619B quad-core processor ,2GB non-ECC DDR4 onboard (non-upgradable), 2 x 1GbE RJ-45 ports ,2 x USB 3.2 ports.","price":9470000},{"model":"DS425+","desc":"4-bay Plus series model with Intel Celeron J4125 quad-core processor, 2 GB DDR4 non-ECC SODIMM by default and upgradeable to 6 GB,Built-in two M.2 NVMe slots and 1 x 2.5GbE and 1 x 1GbE RJ-45 LAN port","price":13370000},{"model":"DS925+","desc":"4-bay Plus series model (up to 9-bay) with AMD Ryzen V1500B (4-core), 4 GB DDR4 SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports","price":22330000},{"model":"DS925neo+","desc":"4-bay Plus series model (up to 9-bay) with AMD Ryzen V1500B (4-core), 4 GB DDR4 Non-ECC SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports","price":16370000},{"model":"DS1525+","desc":"5-bay Plus series model (up to 15-bay) with AMD Ryzen V1500B, 8 GB DDR4 SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports 10GbE expansion options available via E10G22-T1-Mini","price":32050000},{"model":"DS1525neo+","desc":"5-bay Plus series model (up to 15-bay) with AMD Ryzen V1500B, 4 GB DDR4 Non-ECC SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports 10GbE expansion options available via E10G22-T1-Mini","price":23280000},{"model":"DS1823xs+","desc":"8 bay DiskStation (up to 18-bay), AMD Ryzen V1780B quad-core , 8GB RAM (up to 32GB), Built-in 1x10GbE , 1 x management port for out-of-band management and 2 x M.2 2280 NVMe slots. support Synology HDD & SSD ONLY.","price":42370000},{"model":"DS1825+","desc":"8-bay Plus series model (up to 18-bay) with AMD Ryzen V1500B, 8 GB DDR4 SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports, PCIe 3.0 slot for optional 10GBASE-T or 10/25Gb SFP+/SFP28 adapter cards","price":37870000},{"model":"DS1825neo+","desc":"8-bay Plus series model (up to 18-bay) with AMD Ryzen V1500B, 4 GB DDR4 Non-ECC SODIMM and is upgradeable to 32 GB,Built-in two M.2 NVMe slots, Two built-in 2.5GbE RJ-45 ports, PCIe 3.0 slot for optional 10GBASE-T or 10/25Gb SFP+/SFP28 adapter cards","price":29130000},{"model":"DS2422+","desc":"12-bay DiskStation (up to 24-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 10GbE NIC & M.2 SATA SSD support (optional)","price":47690000},{"model":"DS3622xs+","desc":"12-bay DiskStation (up to 36-bay), 6-Core 2.2 GHz (turbo to 2.7GHz), 16GB RAM (up to 48GB)","price":74190000},{"model":"DS620slim","desc":"6-bay DiskStation, Dual Core 2.0 GHz (turbo to 2.5 GHz), 2GB RAM (up to 6GB)","price":11910000},{"model":"FS200T","desc":"6-bay 2.5\" SATA all-flash storage, Quad Core, 4GB RAM (up to 8GB)","price":23810000},{"model":"FS2500","desc":"12-bay 2.5'' SATA All-flash storage, 4 Core 3.35 GHz (turbo to 3.6 GHz), 8GB RAM (up to 32GB), 2x10GbE Base T, Redundant power","price":91420000},{"model":"RS1626xs+","desc":"4-bay Expandable up to 16 drives by connecting to RX1225RP via mini-SAS HD expansion cable, featuring dual 10GbE ports, 16GB DDR4 RAM (upgradeable to 64GB), two M.2 NVMe slots, PCIe 4.0 expansion, and 5-year warranty.","price":104390000},{"model":"RS422+","desc":"4-bay RackStation, dual Core , 2GB DDR4 ECC","price":26190000},{"model":"RS826+","desc":"4-bay RackStation (up to 8-bay), AMD Ryzen V1500B, 4GB RAM (up to 32 GB), 10/25GbE NIC support (optional)","price":40670000},{"model":"RS826RP+","desc":"4-bay RackStation (up to 8-bay), AMD Ryzen V1500B, 4GB RAM (up to 32 GB), 10/25GbE NIC support (optional)","price":46480000},{"model":"FS3420","desc":"24-bay Xeon D-1739 model, featuring dual 10GbE ports, 32GB DDR4 RAM (upgradeable to 192GB), PCIe 4.0 expansion, and a 5-year warranty (not expandable).","price":297590000},{"model":"FS6420","desc":"24-bay all-flash model featuring dual 10GbE ports, 64GB DDR4 RAM (upgradeable to 1024GB), PCIe 4.0 expansion, and a 5-year warranty.","price":474340000},{"model":"RS1221+","desc":"8-bay RackStation (up to 12-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 10GbE NIC & M.2 SSD support (optional)","price":40670000},{"model":"RS1221RP+","desc":"8-bay RackStation (up to 12-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 10GbE NIC & M.2 SSD support (optional)","price":52260000},{"model":"RS1226+","desc":"8-bay RackStation (up to 12-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 2 x 2.5GbE ports as standard, 10/25 GbE NIC support (optional), Bult-in M.2 2280 NVME Slots","price":45610000},{"model":"RS1226RP+","desc":"8-bay RackStation (up to 12-bay), Quad Core 2.2 GHz, 4GB RAM (up to 32GB), 2 x 2.5GbE ports as standard, 10/25 GbE NIC support (optional), Bult-in M.2 2280 NVME Slots, Redundant power","price":55180000},{"model":"RS2423+","desc":"12-bay Plus series , AMD Ryzen V1780B quad-core processor ,8GB DDR4 ECC default memory , expandable up to 32GB, 10GbE RJ-45 , 2 x 1GbE ports , Support RX1223RP expansion unit only","price":67630000},{"model":"RS2423RP+II","desc":"12-bay RackStation (up to 24-bay),AMD Ryzen V1780, 8GB DDR4 ECC default memory, expandable up to 32GB,1x 10GbE RJ-45 and 2 x 1GbE ports, 1 × PCIe 3.0 slot","price":81250000},{"model":"RS3618xs","desc":"12-bay RackStation (up to 36-bay), Quad Core 2.4 GHz (turbo to 2.7 GHz), 8GB RAM (up to 64GB), 10GbE NIC support (optional)","price":81250000},{"model":"RS3626xs","desc":"12-bay Xeon D-1726 model, expandable up to 36 drives via 2x RX1225RP, featuring dual 10GbE ports, 8GB DDR4 RAM (upgradeable to 48GB), PCIe 4.0 expansion, and a 5-year warranty.","price":118870000},{"model":"RS4826xs+","desc":"12-bay Xeon D-1739 model, expandable up to 48 drives via 3x RX1225RP, featuring dual 10GbE ports, 16GB DDR4 RAM (upgradeable to 96GB), PCIe 4.0 expansion, and a 5-year warranty.","price":147800000},{"model":"SA3400D","desc":"12-bay active-passive NAS.  8-core processor , 8GB ECC UDIMM per controller  expandable up to 64GB , PCIe: 1 x 3.0 x8 slot per controller , supports up to 36 drives with 2 x RXD1219sas","price":268140000},{"model":"SA3410","desc":"< Tentative to Launch end of Q1 >12-bay RackStation (Supports up to 7 x RX1222sas expansion units) ,Xeon D-1541 CPU, 8-core 2.1 (base) / 2.7 (turbo) GHz , 16GB ECC RDIMM ,expandable up to 128GB  ,  2 x 10GbE  ,Redundant power, SAS compatible","price":165070000},{"model":"HD6500","desc":"60-bay RackStation (up to 300-bay)","price":503790000},{"model":"PAS7700","desc":"48-bay NVMe Expandable up to 216 drives with expansions, AMD EPYC 24-core, 64 GB DDR4 ECC RDIMM by default and upgradeable to 1,024 GB (64 GB x 16) per controller.Two built-in 10GbE and one 1GbE RJ-45 (for Out-of-Band management) ports per controller. 5-year warranty.","price":1768390000},{"model":"RS11626xs+","desc":"20-bay (16x 3.5\" + 4x 2.5\") model, expandable up to 116 drives via 8x RX1222sas, featuring dual 10GbE ports, 64GB DDR4 RAM (upgradeable to 1024GB), two M.2 NVMe slots, PCIe 4.0 expansion, and a 5-year warranty.","price":249140000},{"model":"RS2825RP+","desc":"16-bay RackStation (up to 28-bay), AMD Ryzen V1780B , Built-in 1 x 10GbE RJ-45 port and 2 x 1GbE RJ-45 ports , 8 GB DDR4 ECC UDIMM, expandable up to 32 GB (16 GB x 2)","price":89890000},{"model":"RS6426xs+","desc":"16-bay Xeon D-1739 model, expandable up to 64 drives via 4x RX1225RP, featuring dual 10GbE ports, 16GB DDR4 RAM (upgradeable to 96GB), PCIe 4.0 expansion, and a 5-year warranty.","price":176750000},{"model":"UC3200","desc":"12-bay Dual Controller Active-Active iSCSI Server (up to 36-bay), Quad Core 2.4GHz (turbo to 2.7GHz), 8GB RAM (up to 64GB),  1x10GbE Base T, SAS compatible","price":179770000}],"terraMasterNAS":[{"model":"F2-425","desc":"Intel Celeron N5095  Quad Core 2.0GHz, 4GB DDR4, 2.5GbE X1, USB 3.2 X3","gp15":6470000,"gp20":6750000,"bullets":["CPU N5095 Quad Core 2.0GHz","RAM 4GB DDR4","LAN 2.5GbE x1"]},{"model":"F2-425 Plus","desc":"Intel N150 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, USB 3.2 X3","gp15":10720000,"gp20":11190000,"bullets":["CPU Intel N150 (turbo 3.4GHz)","RAM 8GB DDR5","LAN 5GbE x2"]},{"model":"F2-425 Plus-N95","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, M.2 x 3,USB 3.2 X3","gp15":10380000,"gp20":10830000,"bullets":["CPU Intel N95 (turbo 3.4GHz)","RAM 8GB DDR5","LAN 5GbE x2","3x khe M.2 NVMe"]},{"model":"F4-425","desc":"Intel Celeron N5095  Quad Core 2.0GHz, 4GB DDR4, 2.5GbE X1, USB 3.2 X3","gp15":9360000,"gp20":9770000,"bullets":["CPU N5095 Quad Core 2.0GHz","RAM 4GB DDR4","LAN 2.5GbE x1"]},{"model":"F4-425 Plus","desc":"Intel N150 Quad Core (up to 3.40 GHz) 16GB DDR5, 5GbE X2, USB 3.2 X3","gp15":14130000,"gp20":14740000,"bullets":["CPU Intel N150 (turbo 3.4GHz)","RAM 16GB DDR5","LAN 5GbE x2"]},{"model":"F4-425 Plus-N95","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, M.2 x 3,USB 3.2 X3","gp15":12770000,"gp20":13320000,"bullets":["CPU Intel N95 (turbo 3.4GHz)","RAM 8GB DDR5","LAN 5GbE x2","3x khe M.2 NVMe"]},{"model":"F4-425 Pro -N305","desc":"Intel Core i3-N305 8-Core (up to 3.80 GHz) 8GB DDR4, 5GbE X2, M.2 x 3,USB 3.2 X3","gp15":15660000,"gp20":16340000,"bullets":["CPU i3-N305 8-core (turbo 3.8GHz)","RAM 8GB DDR4","LAN 5GbE x2","3x khe M.2 NVMe"]},{"model":"F6-424","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 2.5GbE x2","gp15":15320000,"gp20":15980000,"bullets":["CPU Intel N95 (turbo 3.4GHz)","RAM 8GB DDR5","LAN 2.5GbE x2"]},{"model":"F6-424 Max","desc":"Intel i5-1235U 10 Core NAS  16GB DDR5,  10GbE x2","gp15":22530000,"gp20":23510000,"bullets":["CPU i5-1235U 10-core","RAM 16GB DDR5","LAN 10GbE x2"]},{"model":"F4 SSD","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE x1","gp15":10550000,"gp20":11010000,"bullets":["All-flash 4-khay M.2","CPU N95, RAM 8GB DDR5","LAN 5GbE x1"]},{"model":"F8 SSD","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 10GbE x1","gp15":13960000,"gp20":14560000,"bullets":["All-flash 8-khay M.2","CPU N95, RAM 8GB DDR5","LAN 10GbE x1"]},{"model":"F8 SSD Plus","desc":"Intel Core i3 N305 8-Core (up to 3.80 GHz) 16GB DDR5, 10GbE x1","gp15":20080000,"gp20":20950000,"bullets":["All-flash 8-khay M.2","CPU i3-N305 8-core, RAM 16GB DDR5","LAN 10GbE x1"]},{"model":"T9-500 Pro","desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2","gp15":40840000,"gp20":42610000,"bullets":["CPU i7-1255U 10-core (tower)","RAM 16GB DDR5","LAN 10GbE x2"]},{"model":"T12-500 Pro","desc":"Intel i7-1255U 10 Core NAS  16GB DDR5, 10GbE X2","gp15":44240000,"gp20":46170000,"bullets":["CPU i7-1255U 10-core (tower)","RAM 16GB DDR5","LAN 10GbE x2"]},{"model":"U4-500","desc":"Intel i3-1215U 6 Cores 8 Threads, 8GB DDR5, 10GbE x2, M.2 x2, Short Depth RackMount NAS","gp15":19740000,"gp20":20600000,"bullets":["Rack short-depth 4-khay","CPU i3-1215U 6-core/8-thread, RAM 8GB DDR5","LAN 10GbE x2","2x khe M.2 NVMe"]},{"model":"U8-500 Plus","desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2","gp15":40840000,"gp20":42610000,"bullets":["Rack 8-khay","CPU i7-1255U 10-core, RAM 16GB DDR5","LAN 10GbE x2"]},{"model":"U12-500 Plus","desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2","gp15":44240000,"gp20":46170000,"bullets":["Rack 12-khay","CPU i7-1255U 10-core, RAM 16GB DDR5","LAN 10GbE x2"]},{"model":"U8-725","desc":"Intel Xeon D-2712T  4Cores 8Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2","gp15":76570000,"gp20":79900000,"bullets":["Rack 8-khay","CPU Xeon D-2712T 4C/8T, RAM 16GB ECC DDR4","LAN SFP+ 10GbE x4 + RJ45 5GbE x2"]},{"model":"U12-725","desc":"Intel Xeon D-2712T  4Cores 8Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2","gp15":86780000,"gp20":90550000,"bullets":["Rack 12-khay","CPU Xeon D-2712T 4C/8T, RAM 16GB ECC DDR4","LAN SFP+ 10GbE x4 + RJ45 5GbE x2"]},{"model":"U12-725 Plus","desc":"Intel Xeon D-2733NT  8Cores 16Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2","gp15":110600000,"gp20":115410000,"bullets":["Rack 12-khay","CPU Xeon D-2733NT 8C/16T, RAM 16GB ECC DDR4","LAN SFP+ 10GbE x4 + RJ45 5GbE x2"]},{"model":"U16-725 Plus","desc":"Intel Xeon D-2733NT  8Cores 16Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2","gp15":127610000,"gp20":133160000,"bullets":["Rack 16-khay","CPU Xeon D-2733NT 8C/16T, RAM 16GB ECC DDR4","LAN SFP+ 10GbE x4 + RJ45 5GbE x2"]}],"toshibaN300":[{"model":"HDWG740AZSTC","desc":"Toshiba 3.5\" N300 24x7 4TB Gold 7200rpm 512MB","gp15":7144000,"gp20":7590500,"tb":4},{"model":"HDWG760AZSTA","desc":"Toshiba 3.5\" N300 24x7 6TB Gold 7200rpm 512MB","gp15":8840000,"gp20":9392500,"tb":6},{"model":"HDWG780AZSTA","desc":"Toshiba 3.5\" N300 24x7 8TB Gold 7200rpm 512MB","gp15":9344000,"gp20":9928000,"tb":8},{"model":"HDWG71AAZSTA","desc":"Toshiba 3.5\" N300 24x7 10TB Gold 7200rpm 512MB","gp15":11536000,"gp20":12257000,"tb":10},{"model":"HDWG51CAZSTA","desc":"Toshiba 3.5\" N300 24x7 12TB  Gold 7200rpm 512MB","gp15":13968000,"gp20":14841000,"tb":12},{"model":"HDWG51EAZSTA","desc":"Toshiba 3.5\" N300 24x7 14TB  Gold 7200rpm 512MB","gp15":15360000,"gp20":16320000,"tb":14},{"model":"HDWG51GAZSTA","desc":"Toshiba 3.5\" N300 24x7 16TB  Gold 7200rpm 1024MB","gp15":16408000,"gp20":17433500,"tb":16},{"model":"HDWG51JAZSTA","desc":"Toshiba 3.5\" N300 24x7 18TB  Gold 7200rpm 1024MB","gp15":18152000,"gp20":19286500,"tb":18},{"model":"HDWG62AAZSTA","desc":"Toshiba 3.5\" N300 24x7 20TB  Gold 7200rpm 1024MB","gp15":19544000,"gp20":20765500,"tb":20},{"model":"HDWG82CAZSTA","desc":"Toshiba 3.5\" N300 24x7 22TB  Gold 7200rpm 1024MB","gp15":21288000,"gp20":22618500,"tb":22},{"model":"HDWG82EAZSTA","desc":"Toshiba 3.5\" N300 24x7 24TB  Gold 7200rpm 1024MB","gp15":22648000,"gp20":24063500,"tb":24}],"toshibaMG":[{"model":"MG10ADA400E","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 4TB SATA 7200RPM, 6Gbps","gp15":7680000,"gp20":8160000,"tb":4},{"model":"MG10ADA600E","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 6TB SATA 7200RPM, 6Gbps","gp15":9360000,"gp20":9945000,"tb":6},{"model":"MG10ADA800E","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 8TB SATA 7200RPM, 6Gbps","gp15":9680000,"gp20":10285000,"tb":8},{"model":"MG10ADA10TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 10TB SATA 7200RPM","gp15":11680000,"gp20":12410000,"tb":10},{"model":"MG09ACA12TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 12TB SATA 7200RPM","gp15":14160000,"gp20":15045000,"tb":12},{"model":"MG09ACA14TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 14TB SATA 7200RPM, 6Gbps","gp15":15520000,"gp20":16490000,"tb":14},{"model":"MG11ACA16TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 16TB SATA 7200RPM, 6Gbps","gp15":16560000,"gp20":17595000,"tb":16},{"model":"MG11ACA18TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 18TB SATA 7200RPM, 6Gbps","gp15":18000000,"gp20":19125000,"tb":18},{"model":"MG11ACA20TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 20TB SATA 7200RPM, 6Gbps","gp15":19760000,"gp20":20995000,"tb":20},{"model":"MG11ACA22TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 22TB SATA 7200RPM, 6Gbps","gp15":21120000,"gp20":22440000,"tb":22},{"model":"MG11ACA24TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 24TB SATA 7200RPM, 1GiB","gp15":22880000,"gp20":24310000,"tb":24}],"synologyHDDPlus":[{"model":"HAT3300-4T","desc":"4TB 3.5” , 5,400 rpm Synology Plus Series HDD SATA HDD","price":5770000,"tb":4},{"model":"HAT3300-6T","desc":"6TB 3.5” , 5,400 rpm Synology Plus Series HDD SATA HDD","price":8270000,"tb":6},{"model":"HAT3310-12T","desc":"12TB 3.5” , 7,200rpm Synology Plus Series HDD SATA HDD","price":14410000,"tb":12},{"model":"HAT3310-16T","desc":"16TB 3.5” , 7,200rpm, Helium-sealed design, Synology Plus Series HDD SATA HDD","price":17230000,"tb":16},{"model":"HAT3320-20T","desc":"20TB 3.5” , Synology Plus Series HDD SATA HDD","price":20580000,"tb":20},{"model":"HAT3320-8T","desc":"8TB 3.5” Synology Plus Series HDD SATA HDD","price":11260000,"tb":8}],"synologyHDDEnt":[{"model":"HAT5300-12T","desc":"12TB 3.5” Enterprise-Grade SATA HDD","price":18430000,"tb":12},{"model":"HAT5310-16T","desc":"16TB 3.5” Enterprise-Grade SATA HDD","price":23050000,"tb":16},{"model":"HAT5320-20T","desc":"20 TB 3.5” Enterprise-Grade SATA HDD","price":26130000,"tb":20},{"model":"HAT5320-24T","desc":"24 TB 3.5” Enterprise-Grade SATA HDD","price":30750000,"tb":24},{"model":"HAT5320-4T","desc":"4 TB 3.5” Enterprise-Grade SATA HDD","price":10740000,"tb":4},{"model":"HAT5320-8T","desc":"8 TB 3.5” Enterprise-Grade SATA HDD","price":15360000,"tb":8}],"synologyHDDSas":[{"model":"HAS5310-12T","desc":"","price":21500000,"tb":12},{"model":"HAS5310-20T","desc":"20 TB 3.5” Enterprise-Grade SAS HDD","price":27650000,"tb":20},{"model":"HAS5320-24T","desc":"24 TB 3.5” Enterprise-Grade SAS HDD","price":33820000,"tb":24}],"mapping":[{"syno":"DS124","tm":null,"bays":2,"note":"TerraMaster hiện chưa có dòng NAS 1-khay tương đương. Đề xuất gần nhất là F2-425 (2 khay) — dư 1 khay để mở rộng dung lượng ngay từ đầu.","caveat":"Không phải cấu hình 1:1 — chênh lệch số khay."},{"syno":"DS223","tm":"F2-425","bays":2,"note":"Cùng phân khúc Value 2-khay, CPU lõi tứ, đáp ứng nhu cầu lưu trữ/chia sẻ file cơ bản.","caveat":null},{"syno":"DS223j","tm":"F2-425","bays":2,"note":"Cùng phân khúc Value 2-khay entry-level.","caveat":null},{"syno":"DS225+","tm":"F2-425 Plus-N95","bays":2,"note":"Vượt trội hơn bản Plus của Synology: CPU N95, RAM DDR5 8GB, 5GbE x2 (so với 2.5GbE+1GbE) và có sẵn 3 khe M.2 NVMe.","caveat":null},{"syno":"DS725+","tm":"F2-425 Plus-N95","bays":2,"note":"Cùng phân khúc Plus 2-khay có khe NVMe; băng thông mạng 5GbE x2 cao hơn.","caveat":"RAM TerraMaster là DDR5 non-ECC — nếu khách yêu cầu bắt buộc ECC ở 2-khay, cần trao đổi rõ trước khi báo giá."},{"syno":"DS725neo+","tm":"F2-425 Plus-N95","bays":2,"note":"Bản neo+ của Synology cũng dùng RAM non-ECC nên tương đồng về phân khúc.","caveat":null},{"syno":"DS423","tm":"F4-425","bays":4,"note":"Cùng phân khúc Value 4-khay.","caveat":null},{"syno":"DS425+","tm":"F4-425 Plus-N95","bays":4,"note":"Vượt trội hơn: 5GbE x2, 3 khe M.2 NVMe (Synology chỉ 2 khe M.2, 2.5GbE+1GbE).","caveat":null},{"syno":"DS925+","tm":"F4-425 Pro -N305","bays":4,"note":"Mạnh hơn hẳn: CPU i3-N305 8-core so với Ryzen V1500B 4-core, cùng 5GbE x2 và 3 khe NVMe.","caveat":"RAM DDR4 non-ECC — cần lưu ý nếu khách yêu cầu ECC bắt buộc."},{"syno":"DS925neo+","tm":"F4-425 Pro -N305","bays":4,"note":"Bản neo+ dùng RAM non-ECC nên F4-425 Pro-N305 là đối trọng hợp lý và mạnh hơn về CPU.","caveat":null},{"syno":"DS1525+","tm":"F6-424","bays":6,"note":"Dư 1 khay (6 so với 5), băng thông 2.5GbE x2 tương đương; đủ đáp ứng nhu cầu mở rộng.","caveat":"Nếu khách cần 10GbE ngay, đề xuất nâng cấp F6-424 Max."},{"syno":"DS1525neo+","tm":"F6-424","bays":6,"note":"Tương tự DS1525+, F6-424 là phương án cân bằng chi phí/hiệu năng.","caveat":null},{"syno":"DS1823xs+","tm":"U8-725","bays":8,"note":"Vượt trội rõ rệt: Xeon D-2712T, RAM 16GB ECC DDR4, SFP+ 10GbE x4 (so với 1x10GbE). Đặc biệt: không khoá ổ cứng theo hãng như DS1823xs+ (chỉ dùng được ổ Synology).","caveat":null},{"syno":"DS1825+","tm":"U8-725","bays":8,"note":"Mạnh hơn: RAM ECC 16GB, kết nối SFP+ 10GbE x4 built-in thay vì phải mua card PCIe rời.","caveat":null},{"syno":"DS1825neo+","tm":"U8-725","bays":8,"note":"Cùng lý do như DS1825+, U8-725 vượt trội về RAM ECC và cổng mạng built-in.","caveat":null},{"syno":"DS2422+","tm":"U12-725","bays":12,"note":"Cùng 12-khay; U12-725 có sẵn SFP+ 10GbE x4 built-in (DS2422+ 10GbE là tuỳ chọn thêm).","caveat":null},{"syno":"DS3622xs+","tm":"U12-725 Plus","bays":12,"note":"Cùng 12-khay phân khúc cao; CPU Xeon D-2733NT 8-core/16-thread mạnh hơn, RAM 16GB ECC.","caveat":null},{"syno":"DS620slim","tm":null,"bays":6,"note":"TerraMaster hiện không có dòng NAS chuyên khay ổ 2.5\" như DS620slim.","caveat":"Không có SKU tương đương — nếu khách bắt buộc form-factor 2.5\", cần tư vấn giải pháp khác (vd. DAS D-Hybrid)."},{"syno":"FS200T","tm":"F8 SSD","bays":8,"note":"Không có dòng all-flash 6-khay tương đương; F8 SSD (8-khay all-flash, 10GbE) là phương án gần nhất và dư khay.","caveat":"Số khay chênh lệch — cần xác nhận với khách trước khi chào."},{"syno":"FS2500","tm":"F8 SSD Plus","bays":12,"note":"F8 SSD Plus (8-khay all-flash, i3-N305, 10GbE) là phương án all-flash cao nhất hiện có của TerraMaster.","caveat":"FS2500 có 12 khay và dual 10GbE — F8 SSD Plus chỉ 8 khay/1x10GbE. Cần trao đổi rõ về khoảng cách hiệu năng trước khi chào."},{"syno":"RS1626xs+","tm":"U4-500","bays":4,"note":"Cùng 4-khay dạng rack, 10GbE x2, 2 khe M.2 NVMe.","caveat":"RS1626xs+ mở rộng được lên 16 khay qua RX1225RP — U4-500 không có cổng mở rộng tương ứng; cần nêu rõ giới hạn này."},{"syno":"RS422+","tm":"U4-500","bays":4,"note":"Cùng 4-khay dạng rack; U4-500 mạnh hơn nhiều (10GbE x2, NVMe) so với bản 2GB ECC entry của RS422+.","caveat":null},{"syno":"RS826+","tm":"U8-500 Plus","bays":8,"note":"Cùng nền tảng 8-khay; U8-500 Plus có sẵn CPU i7-1255U 10-core, RAM 16GB, 10GbE x2 built-in.","caveat":null},{"syno":"RS826RP+","tm":"U8-500 Plus","bays":8,"note":"Cùng lý do như RS826+.","caveat":"RS826RP+ có nguồn dự phòng kép (RP = Redundant Power) — cần xác nhận cấu hình nguồn của U8-500 Plus trước khi chào cho khách cần HA nguồn điện."},{"syno":"FS3420","tm":null,"bays":24,"note":"TerraMaster hiện chưa có dòng 24-khay nền tảng Xeon D tương đương.","caveat":"Không có SKU tương đương ở phân khúc này — đề xuất giữ nguyên Synology hoặc chờ dòng sản phẩm TerraMaster cao cấp hơn."},{"syno":"FS6420","tm":null,"bays":24,"note":"TerraMaster hiện chưa có dòng all-flash 24-khay tương đương.","caveat":"Không có SKU tương đương — phân khúc all-flash enterprise cao cấp ngoài danh mục hiện tại."},{"syno":"RS1221+","tm":"U8-725","bays":8,"note":"Cùng 8-khay; U8-725 có SFP+ 10GbE x4 built-in và RAM ECC 16GB.","caveat":null},{"syno":"RS1221RP+","tm":"U8-725","bays":8,"note":"Cùng lý do như RS1221+.","caveat":"Bản RP có nguồn dự phòng kép — cần xác nhận cấu hình nguồn của U8-725."},{"syno":"RS1226+","tm":"U8-725","bays":8,"note":"Cùng 8-khay; U8-725 có 2.5/5GbE x2 + SFP+10GbE x4 built-in, vượt trội so với 2.5GbE tiêu chuẩn của RS1226+.","caveat":null},{"syno":"RS1226RP+","tm":"U8-725","bays":8,"note":"Cùng lý do như RS1226+.","caveat":"Bản RP có nguồn dự phòng kép — cần xác nhận cấu hình nguồn của U8-725."},{"syno":"RS2423+","tm":"U12-725","bays":12,"note":"Cùng 12-khay, RAM ECC; U12-725 có SFP+10GbE x4 built-in.","caveat":null},{"syno":"RS2423RP+II","tm":"U12-725","bays":12,"note":"Cùng lý do như RS2423+.","caveat":"Bản RP có nguồn dự phòng kép — cần xác nhận cấu hình nguồn của U12-725."},{"syno":"RS3618xs","tm":"U12-725 Plus","bays":12,"note":"Cùng 12-khay phân khúc cao; CPU 8-core/16-thread, RAM 16GB ECC, SFP+10GbE x4.","caveat":null},{"syno":"RS3626xs","tm":"U12-725 Plus","bays":12,"note":"Cùng 12-khay nền Xeon D, dual 10GbE; U12-725 Plus có 4 cổng SFP+10GbE.","caveat":null},{"syno":"RS4826xs+","tm":"U12-725 Plus","bays":12,"note":"Cùng nền tảng 12-khay cao cấp.","caveat":"RS4826xs+ mở rộng được lên 48 khay qua 3x RX1225RP — U12-725 Plus không có cổng mở rộng tương ứng; cần nêu rõ giới hạn quy mô."},{"syno":"SA3400D","tm":null,"bays":12,"note":"TOS 7 hiện chưa hỗ trợ High Availability (HA) dual-controller gốc, nên không có SKU thay thế trực tiếp cho dòng active-passive này.","caveat":"Đây là khoảng cách tính năng cần công bố minh bạch với khách hàng yêu cầu HA phần cứng."},{"syno":"SA3410","tm":null,"bays":12,"note":"U-Series không có cổng SAS gốc (cần card HBA PCIe rời) nên chưa thể thay thế trực tiếp dòng SAS-compatible này.","caveat":"Khoảng cách tính năng SAS — công bố minh bạch với khách."},{"syno":"HD6500","tm":null,"bays":60,"note":"TerraMaster chưa có dòng NAS quy mô 60-khay tương đương.","caveat":"Không có SKU tương đương — phân khúc siêu lớn ngoài danh mục hiện tại."},{"syno":"PAS7700","tm":null,"bays":48,"note":"TerraMaster chưa có dòng NVMe all-flash enterprise dual-controller quy mô này.","caveat":"Không có SKU tương đương — phân khúc enterprise cao cấp nhất ngoài danh mục hiện tại."},{"syno":"RS11626xs+","tm":"U16-725 Plus","bays":16,"note":"U16-725 Plus (16-khay) là dòng rack lớn nhất hiện có, dùng làm nền tảng khởi điểm.","caveat":"RS11626xs+ mở rộng lên tới 116 khay qua 8x RX1222sas — U16-725 Plus không có cổng mở rộng tương ứng; chỉ phù hợp nếu nhu cầu thực tế ở quy mô 16 khay trở xuống."},{"syno":"RS2825RP+","tm":"U16-725 Plus","bays":16,"note":"Cùng 16-khay; U16-725 Plus có RAM ECC 16GB, SFP+10GbE x4 built-in.","caveat":"Bản RP có nguồn dự phòng kép — cần xác nhận cấu hình nguồn."},{"syno":"RS6426xs+","tm":"U16-725 Plus","bays":16,"note":"Cùng 16-khay nền Xeon D, dual 10GbE.","caveat":null},{"syno":"UC3200","tm":null,"bays":12,"note":"TOS 7 chưa hỗ trợ HA dual-controller gốc và U-Series không có cổng SAS gốc — hai khoảng cách tính năng so với UC3200.","caveat":"Không có SKU thay thế phù hợp cho nhu cầu HA + SAS; cần công bố minh bạch với khách."}],"synologyOther":[{"model":"RX426","desc":"4-bay SATA expansion unit for RS1226+, RS1226RP+, RS826+, RS826RP+","price":14250000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"DX1215II","desc":"12-bay SATA expansion unit for DS2419+, DS2419+II, DS3018xs, DS3617xs, DS3615xs, DS2015xs, DS3612xs, DS3611xs, DS2415+, DS2413+, DS2411+","price":27140000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"DX1222","desc":"12-bay SATA expansion unit for DS3622xs+, DS2422+","price":27230000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"DX517","desc":"5-bay SATA expansion unit for DS718+, DS918+, DS1019+, DS1517, DS1517+, DS1817, DS1817+, DS1819+, DVA3219, DS1520+, DS920+, DS720+, DS1821+, DS1621xs+, DS1621+, DVA3221","price":11660000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"DX525","desc":"5-bay expansion units for desktop models, connect through a Type-C expansion cable","price":11660000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"FX2421","desc":"Expansion unit for FS6400, FS3600, FS3400","price":86140000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"PAX224","desc":"24-bay NVMe expansion unit, Supports up to 7 PAX224 units per PAS7700 host for a total of 216 drives., 5-year warranty.","price":154100000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RX1216sas","desc":"12-bay SAS/SATA expansion unit for RS18016xs+","price":62990000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RX1217","desc":"12-bay SATA expansion unit for RS4021xs+, RS3621xs+, RS3621RPxs, RS2821RP+, RS2421RP+, RS2421+, RS1619xs+, RS4017xs+, RS3617xs+, RS3618xs, RS3617(RP)xs, RS3614xs+, RS3614(RP)xs, RS2418(RP)+, RS2416(RP)+, RS2414(RP)+, RS2818RP+, RS3413xs+, RS3412(RP)xs, RS3411(RP)xs, RS2212(RP)+, RS2211(RP)+","price":34430000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RX1217RP","desc":"12-bay SATA expansion unit for RS4021xs+, RS3621xs+, RS3621RPxs, RS2821RP+, RS2421RP+, RS2421+, RS1619xs+, RS4017xs+, RS3617xs+, RS3618xs, RS3617(RP)xs, RS3614xs+, RS3614(RP)xs, RS2418(RP)+, RS2416(RP)+, RS2414(RP)+, RS2818RP+, RS3413xs+, RS3412(RP)xs, RS3411(RP)xs, RS2212(RP)+, RS2211(RP)+","price":49930000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RX1222sas","desc":"12-bay SAS/SATA expansion unit for SA3600, SA3400","price":72270000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RX1223RP","desc":"< Tentative to Launch end of Q4 > 12-bay SATA expansion unit for SA6400 ,  connected through mini-SAS HD cables","price":54600000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RX1225RP","desc":"12-bay SATA expansion unit ,Connects through the new mini-SAS HD cable (MiniSASHD_EXT_3) designed for the new 25-series onward rack models","price":55700000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RX418","desc":"","price":12950000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RX6025sas","desc":"60-bay SAS expansion unit for HD6500","price":191360000,"category":"Đơn vị mở rộng (Expansion)"},{"model":"RXD1219sas","desc":"12-bay SAS expansion unit for UC3200","price":82290000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"DVA1622","desc":"Deep Video Analytics NVR: 2-bay , 8 default licenses (up to 16ch), 2 real-time analysis tasks, supporting face recognition, license plate recognition, people and vehicle detection, people and vehicle counting, and intrusion detection.","price":20710000,"category":"Camera & NVR"},{"model":"DVA7400","desc":"Deep Video Analytics NVR: 12-bay, support 100ch, 40 real-time analysis tasks with Advanced AI search (Sementic, Repetitive Objects) supported","price":228160000,"category":"Camera & NVR"},{"model":"VS600HD","desc":"Video decoder (up to 50ch @720p) Dual HDMI ports support 4K video output ,2 x USB 3.2 ports supporting external mouse and keyboard for a PC-less Surveillance Station monitoring solution.","price":15550000,"category":"Camera & NVR"},{"model":"MSD01-1T","desc":"MicroSD Card paired with the cloud camera for local storage. Size 1TB","price":7760000,"category":"Thẻ nhớ MicroSD"},{"model":"MSD01-256G","desc":"MicroSD Card paired with the cloud camera for local storage. Size 256G","price":2570000,"category":"Thẻ nhớ MicroSD"},{"model":"MSD01-512G","desc":"MicroSD Card paired with the cloud camera for local storage. Size 512G","price":5170000,"category":"Thẻ nhớ MicroSD"},{"model":"SAT5210-7000G","desc":"7 TB 2.5” Enterprise-Grade SATA SSD","price":153780000,"category":"Ổ cứng SSD"},{"model":"SAT5221-1920G","desc":"1.92TB 2.5” Enterprise-Grade SATA SSD","price":46100000,"category":"Ổ cứng SSD"},{"model":"SAT5221-3840G","desc":"3.84TB 2.5” Enterprise-Grade SATA SSD","price":76880000,"category":"Ổ cứng SSD"},{"model":"SNV3410-400G","desc":"400GB M.2 2280 NVMe SSD","price":12260000,"category":"Ổ cứng SSD"},{"model":"SNV5420-1600G","desc":"1600GB M.2 2280 NVMe SSD with power loss protection","price":46100000,"category":"Ổ cứng SSD"},{"model":"SNV5420-400G","desc":"400GB M.2 2280 NVMe SSD with power loss protection","price":13810000,"category":"Ổ cứng SSD"},{"model":"SNV5420-800G","desc":"800GB M.2 2280 NVMe SSD with power loss protection","price":21500000,"category":"Ổ cứng SSD"},{"model":"SPU7200D-1920G","desc":"1.92 TB: Dual-port U.3 NVMe SSD, 5-year warranty.","price":67090000,"category":"Ổ cứng SSD"},{"model":"SPU7200D-3840G","desc":"3.84 TB: Dual-port U.3 NVMe SSD,5-year warranty.","price":100660000,"category":"Ổ cứng SSD"},{"model":"SPU7200D-7680G","desc":"7.68TB: Dual-port U.3 NVMe SSD, 5-year warranty.","price":184530000,"category":"Ổ cứng SSD"},{"model":"APM-1NODE-1Y-VIRTUAL","desc":"","price":16830000,"category":"License / Phần mềm / Dịch vụ"},{"model":"APM-5NODES-1Y","desc":"<Physical Version> 5 node/1 year","price":84180000,"category":"License / Phần mềm / Dịch vụ"},{"model":"Active Insight 1License-1Y","desc":"C2 Active Insight for cloud centralised monitoring on-premise Synology NAS with 1 License per year","price":960000,"category":"License / Phần mềm / Dịch vụ"},{"model":"C2 Backup Business 1TB-1Y","desc":"C2 Backup for Business for client backup to cloud without an on-premise Synology NAS with 1TB license per year","price":3710000,"category":"License / Phần mềm / Dịch vụ"},{"model":"C2 Identity 1License-1Y","desc":"C2 Identity for active directory account and cloud application integration to achieve single sign-on with 1 License per year","price":960000,"category":"License / Phần mềm / Dịch vụ"},{"model":"C2 OneStorage 1TB-1Y","desc":"C2 OneStorage (including Storage, Object Storage and Surveillance365) 1TB license per year","price":2470000,"category":"License / Phần mềm / Dịch vụ"},{"model":"DEVICE LICENSE (X 1)","desc":"1 license for cameras and I/O modules","price":1550000,"category":"License / Phần mềm / Dịch vụ"},{"model":"DEVICE LICENSE (X 4)","desc":"4 licenses for cameras and I/O modules","price":6170000,"category":"License / Phần mềm / Dịch vụ"},{"model":"DEVICE LICENSE (X 8)","desc":"8 licenses for cameras and I/O modules","price":12340000,"category":"License / Phần mềm / Dịch vụ"},{"model":"EW201 VIRTUAL","desc":"<Please bundle with NAS to sell> 2-years extended warranty pack for DS1821+, DS1621+, DS1520+, DS920+, DS720+, DS420+, NVR1218","price":2470000,"category":"License / Phần mềm / Dịch vụ"},{"model":"EW202","desc":"<Please bundle with NAS to sell> 2-years extended warranty pack for RS2821RP+, RS2421+/RS2421RP+, RS1221+/RS1221RP+, RS820+/RS820RP+, DS2422+, DS2419+II, DS2419+","price":5520000,"category":"License / Phần mềm / Dịch vụ"},{"model":"EW202 VIRTUAL","desc":"<Please bundle with NAS to sell> 2-years extended warranty pack for RS2821RP+, RS2421+/RS2421RP+, RS1221+/RS1221RP+, RS820+/RS820RP+, DS2422+, DS2419+II, DS2419+","price":5520000,"category":"License / Phần mềm / Dịch vụ"},{"model":"MailPlus 20 Licenses","desc":"MailPlus perceptual license pack for 20 email accounts","price":27760000,"category":"License / Phần mềm / Dịch vụ"},{"model":"MailPlus 20 Virtual Licenses","desc":"MailPlus perceptual license pack for 20 email accounts","price":27760000,"category":"License / Phần mềm / Dịch vụ"},{"model":"MailPlus 5 Licenses","desc":"MailPlus perceptual license pack for 5 email accounts","price":6960000,"category":"License / Phần mềm / Dịch vụ"},{"model":"MailPlus 5 Virtual Licenses","desc":"MailPlus perceptual license pack for 5 email accounts","price":6960000,"category":"License / Phần mềm / Dịch vụ"},{"model":"PAS7700 Software Maintenance Service 1Y","desc":"Software Maintenance Service 1Y","price":336720000,"category":"License / Phần mềm / Dịch vụ"},{"model":"Surveillance365 Business 1License-1Y","desc":"","price":1550000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VIRTUAL DEVICE LICENSE PACK (X 1)","desc":"<PDF version> 1 license for cameras and I/O modules","price":1550000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VIRTUAL DEVICE LICENSE PACK (X 4)","desc":"<PDF version> 4 licenses for cameras and I/O modules","price":6170000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VIRTUAL DEVICE LICENSE PACK (X 8)","desc":"<PDF version> 8 licenses for cameras and I/O modules","price":12340000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VMMPRO-3NODE-S1Y","desc":"Virtual Machine Manager Pro License Pack (3 VM nodes, 1 year)","price":4150000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VMMPRO-3NODE-S3Y","desc":"Virtual Machine Manager Pro License Pack (3 VM nodes, 3 years)","price":11070000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VMMPRO-3NODE-S5Y","desc":"Virtual Machine Manager Pro License Pack (3 VM nodes, 5 years)","price":18570000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VMMPRO-7NODE-S1Y","desc":"Virtual Machine Manager Pro License Pack (7 VM nodes, 1 year)","price":8540000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VMMPRO-7NODE-S3Y","desc":"Virtual Machine Manager Pro License Pack (7 VM nodes, 3 years)","price":22840000,"category":"License / Phần mềm / Dịch vụ"},{"model":"VMMPRO-7NODE-S5Y","desc":"Virtual Machine Manager Pro License Pack (7 VM nodes, 5 years)","price":38290000,"category":"License / Phần mềm / Dịch vụ"},{"model":"Virtual DSM License","desc":"License for one Virtual DSM instance on Virtual Machine Manager","price":4270000,"category":"License / Phần mềm / Dịch vụ"},{"model":"BC500","desc":"Synology camera","price":5670000,"category":"Camera & NVR"},{"model":"BC510","desc":"5MP with IR Night Vision Bullet Cam, IP67/IP66 Weather-resistant, Edge AI Detection and Search with NDAA/TAA certified, license \"excluded\" and extended to Cloud with Surveillance365","price":5670000,"category":"Camera & NVR"},{"model":"BC800Z","desc":"Ultra HD 4K with Optical ZoomHigh-quality imaging  (require license). Edge AI Detection and SearchOn-camera People and Vehicle Counting, Smoke Detection, Intrusion Detection, Instant Search, and Auto Tracking","price":12130000,"category":"Camera & NVR"},{"model":"CC400W","desc":"Synology Camera 4MP camera with 2-way audio for indoor/outdoor use ,125° horizontal wide-angle view, AI powers People and Vehicle Detection, Intrusion Detection, Crowd Detection, Instant Search, and Auto Tracking and US NDAA/TAA compliance","price":3580000,"category":"Camera & NVR"},{"model":"CC410W","desc":"Synology Camera 4MP camera with 2-way audio for indoor/outdoor use ,125° horizontal wide-angle view, AI powers People and Vehicle Detection, Intrusion Detection, Crowd Detection, Instant Search, and Auto Tracking and US NDAA/TAA compliance, license \"excluded\" and extended to Cloud with Surveillance365","price":3010000,"category":"Camera & NVR"},{"model":"FC600","desc":"6MP sensor with 360° panoramic fisheye camera, support IR LED for 10 meters of night vision and support for People Detection, Intrusion Detection, Instant Search and Auto Tracking video analytics","price":8520000,"category":"Camera & NVR"},{"model":"TC510","desc":"5MP with IR Night Vision Turret Cam, IP67/IP66 Weather-resistant, Edge AI Detection and Search with NDAA/TAA certified, license \"excluded\" and extended to Cloud with Surveillance365","price":5670000,"category":"Camera & NVR"},{"model":"BDS70-2T","desc":"2 TB Personal backup hub , Built-in SSD and USB 3.2 Gen 2 (10Gbps) Type-C interface","price":10100000,"category":"BeeStation"},{"model":"BST151-4T","desc":"4TB storage, shareable with up to 8 users., 2GB RAM, plus NPU-accelerated AI face and subject recognition, 3-month BeeProtect included, 3-year warranty included.","price":10100000,"category":"BeeStation"},{"model":"BST170-4T","desc":"BeeStation 4TB, Personal Cloud , built-in hard drive , shareable with up to 8 users, GPU-powered AI for facial and subject recognition , 3-month BeeProtect, 3-year Acronis True Image included","price":13810000,"category":"BeeStation"},{"model":"BST170-8T","desc":"BeeStation 8TB, Personal Cloud , built-in hard drive , shareable with up to 8 users, GPU-powered AI for facial and subject recognition , 3-month BeeProtect included","price":16910000,"category":"BeeStation"},{"model":"DP320","desc":"2-bay entry-level models , 8 TB Storage, suggested backup 5 TB , 8 GB RAM, 2 x 1 GbE , 3-year warranty","price":42780000,"category":"Backup Appliance (DP series)"},{"model":"DP340","desc":"4-bay entry-level models, 24 TB Storage , suggested backup 14.5 TB, with 2 x SNV3410-400G (RAID 1), 16 GB RAM, 1 x 1 GbE +1 x 2.5/10 GbE, 3-year warranty","price":106960000,"category":"Backup Appliance (DP series)"},{"model":"DP5200","desc":"1U with Management feature for 3 backup servers for free (includes management server itself). 36 TB , suggested backup 21.5 TB TB, with 2 x 800G SSD (RAID 1), 16 GB (Max. 64GB), 1 x 1 GbE + 2 x 10 GbE, 5-year warranty ,not include railkit RKS-02","price":461560000,"category":"Backup Appliance (DP series)"},{"model":"DP7200","desc":"2U with Management feature for 3 backup servers for free (includes management server itself). 84 TB , suggested backup 56 TB TB, with 2 x 1920G SSD (RAID 1), 32 GB (Max. 512 GB), 1 x 1 GbE + 2 x 10 GbE, 5-year warranty ,not include railkit RKS-02","price":819400000,"category":"Backup Appliance (DP series)"},{"model":"DP7400","desc":"2U with Management feature for 3 backup servers for free (includes management server itself). , 140 TB Storage , suggested backup 83.5 TB, with 2 x SAT5220-3840G (RAID 1), 64 GB RAM, 1 x 1 GbE + 2 x 10 GbE, 5-year warranty ,not include railkit RKS-02","price":1037220000,"category":"Backup Appliance (DP series)"},{"model":"CMA-01","desc":"Cable Management Arm","price":1730000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4EC-2666-16G","desc":"DDR4 ECC DIMM 2666MHz memory module for UC3200, SA3200D, RS4017xs+, RS3618xs, RS3617xs+, RS3617RPxs, RS1619xs+, RS3621xs+, RS3621RPxs, RS2821RP+, RS2421RP+, RS2421+","price":39750000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4EC-2666-8G","desc":"DDR4 ECC DIMM 2666MHz memory module for UC3200, SA3200D, RS4017xs+, RS3618xs, RS3617xs+, RS3617RPxs, RS1619xs+, RS3621xs+, RS3621RPxs, RS2821RP+, RS2421RP+, RS2421+","price":16770000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ER01-16G","desc":"DDR4-3200 16GB RDIMM memory module for FS3410","price":39750000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ER01-64G","desc":"DDR4-3200 64GB RDIMM memory module for SA6400","price":77930000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ER02-16G","desc":"DDR4-3200 16GB RDIMM compatible with the new Ice Lake-D platform.","price":39750000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ER02-32G","desc":"32GB DDR4 ECC RDIMM module for DP7400","price":62470000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ER02-64G","desc":"64GB DDR4 RDIMM memory module","price":102180000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ER03-32G","desc":"32GB DDR4 RDIMM memory module","price":62470000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ES01-8G","desc":"DDR4 ECC SODIMM 2666MHz memory module for RS1221RP+, RS1221+, DS1821+, DS1621xs+, DS1621+","price":9480000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ES02-4G","desc":"DDR4 ECC SODIMM 3200MHz memory module for DS2422+","price":6120000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ES03-16G","desc":"16GB DDR4 ECC SODIMM","price":28390000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ES03-8G","desc":"8GB DDR4 ECC SODIMM","price":12760000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4ES04-4G","desc":"4GB DDR4 ECC SODIMM","price":9640000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4EU01-4G","desc":"DDR4 ECC UDIMM 2666MHz memory module for RS2821RP+, RS2421RP+, RS2421+","price":6120000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4EU02-16G","desc":"16GB DDR4 ECC UDIMM","price":28390000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4EU02-8G","desc":"8GB DDR4 ECC UDIMM","price":16770000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4NE-2666-4G","desc":"DDR4 non-ECC DIMM 2666MHz memory module for RS2818RP+, RS2418RP+, RS2418+","price":6120000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"D4NS01-4G","desc":"4GB DDR4 non-ECC SODIMM","price":6250000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"E10G22-T1-Mini","desc":"Single port 10 Gigabit Base-T","price":2900000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"E10G30-F2","desc":"dual-port 10GbE SFP+, Flexible connectivity options with support for SR/LR transceivers and DAC","price":6550000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"E10G30-T1","desc":"Single-port 10GbE RJ-45 network card, Compatible data transfer rates include 10Gbps/5Gbps/2.5Gbps/1Gbps/100Mbps.","price":3420000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"E10G30-T2","desc":"Dual-port 10GbE RJ-45 network card","price":6550000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"E10M20-T1","desc":"M.2 SSD & 10GbE Base-T Combo Adapter","price":6090000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"E25G30-F2","desc":"dual-port 25GbE SFP28 network card","price":9220000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"M2D18 Adapter Card","desc":"PCIe Gen2 x8 adapter card for Dual M.2 NVMe / SATA SSD. See Applied models: https://www.synology.com/en-global/products/M2D18#specs","price":2640000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"M2D20 Adapter Card","desc":"PCIe 3.0 x8 adapter card to support both 2280 / 22110 M.2 NVMe SSD. See Applied models: https://www.synology.com/en-global/products/M2D20#specs","price":4400000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"QLE2692","desc":"Dual-port 16GFC adapter card for Fibre Channel SAN environment ,ships with two SR optical transceivers, 3-year warranty , please check for compatible models","price":29170000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"RAM1600DDR3L-4GBX2","desc":"DDR3L non-ECC SODIMM 1600MHz memory module for DS1817+, DS1517+, RS1219+, RS818+/RS818RP+","price":12540000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"RKM114","desc":"Rail Kit Mounted","price":1250000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"RKS-01","desc":"Rail Kit Sliding","price":3520000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"RKS-02","desc":"Rail Kit Sliding","price":3520000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"},{"model":"RKS-04","desc":"sliding rack rails designed for RS1626xs+, FS2500","price":3520000,"category":"Phụ kiện (RAM / Card mạng / Rail kit / Khác)"}],"terraMasterCatalog":[{"model":"F2-425","desc":"Intel Celeron N5095  Quad Core 2.0GHz, 4GB DDR4, 2.5GbE X1, USB 3.2 X3","gp15":6470000,"gp20":6750000,"category":"NAS"},{"model":"F2-425 Plus","desc":"Intel N150 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, USB 3.2 X3","gp15":10720000,"gp20":11190000,"category":"NAS"},{"model":"F2-425 Plus-N95","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, M.2 x 3,USB 3.2 X3","gp15":10380000,"gp20":10830000,"category":"NAS"},{"model":"F4-425","desc":"Intel Celeron N5095  Quad Core 2.0GHz, 4GB DDR4, 2.5GbE X1, USB 3.2 X3","gp15":9360000,"gp20":9770000,"category":"NAS"},{"model":"F4-425 Plus","desc":"Intel N150 Quad Core (up to 3.40 GHz) 16GB DDR5, 5GbE X2, USB 3.2 X3","gp15":14130000,"gp20":14740000,"category":"NAS"},{"model":"F4-425 Plus-N95","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE X2, M.2 x 3,USB 3.2 X3","gp15":12770000,"gp20":13320000,"category":"NAS"},{"model":"F4-425 Pro -N305","desc":"Intel Core i3-N305 8-Core (up to 3.80 GHz) 8GB DDR4, 5GbE X2, M.2 x 3,USB 3.2 X3","gp15":15660000,"gp20":16340000,"category":"NAS"},{"model":"F6-424","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 2.5GbE x2","gp15":15320000,"gp20":15980000,"category":"NAS"},{"model":"F6-424 Max","desc":"Intel i5-1235U 10 Core NAS  16GB DDR5,  10GbE x2","gp15":22530000,"gp20":23510000,"category":"NAS"},{"model":"F4 SSD","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 5GbE x1","gp15":10550000,"gp20":11010000,"category":"NAS"},{"model":"F8 SSD","desc":"Intel N95 Quad Core (up to 3.40 GHz) 8GB DDR5, 10GbE x1","gp15":13960000,"gp20":14560000,"category":"NAS"},{"model":"F8 SSD Plus","desc":"Intel Core i3 N305 8-Core (up to 3.80 GHz) 16GB DDR5, 10GbE x1","gp15":20080000,"gp20":20950000,"category":"NAS"},{"model":"T9-500 Pro","desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2","gp15":40840000,"gp20":42610000,"category":"NAS"},{"model":"T12-500 Pro","desc":"Intel i7-1255U 10 Core NAS  16GB DDR5, 10GbE X2","gp15":44240000,"gp20":46170000,"category":"NAS"},{"model":"U4-500","desc":"Intel i3-1215U 6 Cores 8 Threads, 8GB DDR5, 10GbE x2, M.2 x2, Short Depth RackMount NAS","gp15":19740000,"gp20":20600000,"category":"NAS"},{"model":"U8-500 Plus","desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2","gp15":40840000,"gp20":42610000,"category":"NAS"},{"model":"U12-500 Plus","desc":"Intel i7-1255U  10 Core NAS  16GB DDR5, 10GbE X2","gp15":44240000,"gp20":46170000,"category":"NAS"},{"model":"U8-725","desc":"Intel Xeon D-2712T  4Cores 8Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2","gp15":76570000,"gp20":79900000,"category":"NAS"},{"model":"U12-725","desc":"Intel Xeon D-2712T  4Cores 8Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2","gp15":86780000,"gp20":90550000,"category":"NAS"},{"model":"U12-725 Plus","desc":"Intel Xeon D-2733NT  8Cores 16Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2","gp15":110600000,"gp20":115410000,"category":"NAS"},{"model":"U16-725 Plus","desc":"Intel Xeon D-2733NT  8Cores 16Threads, 16GB DDR4 ECC, SFP+ 10GbE X4,RJ45 5GbE X2","gp15":127610000,"gp20":133160000,"category":"NAS"},{"model":"D2-320","desc":"2Bay USB3.2 Gen2 10Gbps RAID 0/1/JBOD/SINGLE","gp15":3270000,"gp20":3410000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D4-320","desc":"4Bay USB3.2 Gen2 10Gbps SINGLE DISK(NO RAID)","gp15":4120000,"gp20":4300000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D4-320U","desc":"4Bay USB3.2 Gen2 10Gbps SINGLE DISK(NO RAID) Short Depth RackMount DAS","gp15":7080000,"gp20":7390000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D5-310","desc":"5Bay USB 3.1 Gen1 RAID 0/1/5/10/JBOD/SINGLE","gp15":5690000,"gp20":5930000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D5-Hybrid","desc":"5Bay (2 HDD + 3 M.2 SSD) USB3.2 Gen2 10Gbps RAID 0/1/JBOD/SINGLE ","gp15":5080000,"gp20":5300000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D6-320","desc":"6Bay USB3.2 Gen2 10Gbps SINGLE DISK(NO RAID)","gp15":6640000,"gp20":6930000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D8 Hybrid","desc":"8Bay (4 HDD + 4 M.2 SSD) USB3.2 Gen2 x2 10Gbps","gp15":6470000,"gp20":6750000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D9-320","desc":"9Bay USB3.2 Gen2 10Gbps SINGLE DISK(NO RAID)","gp15":11230000,"gp20":11720000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D1 SSD","desc":"1Bay M.2 SSD USB3.2  10Gbps ","gp15":890000,"gp20":930000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D1 SSD Plus","desc":"1Bay M.2 SSD USB4  40Gbps","gp15":2220000,"gp20":2310000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D1 SSD Pro","desc":"1Bay M.2 SSD USB4v2  80Gbps ","gp15":5790000,"gp20":6040000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"D4 SSD","desc":"4Bay M.2 SSD USB4  40Gbps SINGLE DISK(NO RAID)","gp15":6810000,"gp20":7110000,"category":"DAS (ổ cứng gắn ngoài)"},{"model":"HDDTRAY-1","desc":"Terramaster Hard Drive Tray 1 for 423series and 223series","gp15":350000,"gp20":360000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"HDDTRAY-2","desc":"Terramaster Hard Drive Tray 2  for T series","gp15":410000,"gp20":430000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"HDDTRAY-3","desc":"Terramaster Hard Drive Tray 3 for 212 series,424series,320series and Hybrid series","gp15":350000,"gp20":360000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"PWA-90W","desc":"TerraMaster Power Adapter  7.5A 12V 90W","gp15":1230000,"gp20":1280000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"A-PWA1-550W","desc":"TerraMaster PSU 550W  Single Power Supply","gp15":4360000,"gp20":4550000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"A-PWA1-800W","desc":"TerraMaster PSU 800W  Single Power Supply","gp15":5040000,"gp20":5260000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"A-ASFP2-25G","desc":"TerraMaster Dual-Port 25Gb SFP28 PCIe x8 Ethernet Network Adapter (Including 2x25Gb Multimode Modeules)","gp15":11910000,"gp20":12430000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"A-SFPFM2-10G","desc":"TerraMaster 10Gb SFP+ to RJ-45 Transceiver x1","gp15":1540000,"gp20":1600000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"A-ALAN2-10G","desc":"TerraMaster Dual-Port 10GbE  RJ45 PCIe x4 Ethernet Adapter ","gp15":6300000,"gp20":6570000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"A-ALAN4-10G","desc":"TerraMaster 4-Port 10GbE  RJ45 PCIe x8 Ethernet Adapter ","gp15":15320000,"gp20":15980000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"TRK-U12","desc":"TerraMaster Rack NAS Rail Kit for 1U and 2U (U4, U8 and U12 series)","gp15":2560000,"gp20":2670000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"TRK-U34","desc":"TerraMaster Rack NAS Rail Kit for 3U and 4U (U16 and U24 series)","gp15":2560000,"gp20":2670000,"category":"Phụ kiện / Linh kiện thay thế"},{"model":"MG10ADA400E","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 4TB SATA 7200RPM, 6Gbps","gp15":7680000,"gp20":8160000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG10ADA600E","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 6TB SATA 7200RPM, 6Gbps","gp15":9360000,"gp20":9945000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG10ADA800E","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 8TB SATA 7200RPM, 6Gbps","gp15":9680000,"gp20":10285000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG10ADA10TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 10TB SATA 7200RPM","gp15":11680000,"gp20":12410000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG09ACA12TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 12TB SATA 7200RPM","gp15":14160000,"gp20":15045000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG09ACA14TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 14TB SATA 7200RPM, 6Gbps","gp15":15520000,"gp20":16490000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG11ACA16TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 16TB SATA 7200RPM, 6Gbps","gp15":16560000,"gp20":17595000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG11ACA18TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 18TB SATA 7200RPM, 6Gbps","gp15":18000000,"gp20":19125000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG11ACA20TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 20TB SATA 7200RPM, 6Gbps","gp15":19760000,"gp20":20995000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG11ACA22TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 22TB SATA 7200RPM, 6Gbps","gp15":21120000,"gp20":22440000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"MG11ACA24TE","desc":"TOS IHDD- TOSHIBA 3.5\" NEARLINE 24TB SATA 7200RPM, 1GiB","gp15":22880000,"gp20":24310000,"category":"Ổ cứng Toshiba MG Enterprise"},{"model":"HDWG740AZSTC","desc":"Toshiba 3.5\" N300 24x7 4TB Gold 7200rpm 512MB","gp15":7144000,"gp20":7590500,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG760AZSTA","desc":"Toshiba 3.5\" N300 24x7 6TB Gold 7200rpm 512MB","gp15":8840000,"gp20":9392500,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG780AZSTA","desc":"Toshiba 3.5\" N300 24x7 8TB Gold 7200rpm 512MB","gp15":9344000,"gp20":9928000,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG71AAZSTA","desc":"Toshiba 3.5\" N300 24x7 10TB Gold 7200rpm 512MB","gp15":11536000,"gp20":12257000,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG51CAZSTA","desc":"Toshiba 3.5\" N300 24x7 12TB  Gold 7200rpm 512MB","gp15":13968000,"gp20":14841000,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG51EAZSTA","desc":"Toshiba 3.5\" N300 24x7 14TB  Gold 7200rpm 512MB","gp15":15360000,"gp20":16320000,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG51GAZSTA","desc":"Toshiba 3.5\" N300 24x7 16TB  Gold 7200rpm 1024MB","gp15":16408000,"gp20":17433500,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG51JAZSTA","desc":"Toshiba 3.5\" N300 24x7 18TB  Gold 7200rpm 1024MB","gp15":18152000,"gp20":19286500,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG62AAZSTA","desc":"Toshiba 3.5\" N300 24x7 20TB  Gold 7200rpm 1024MB","gp15":19544000,"gp20":20765500,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG82CAZSTA","desc":"Toshiba 3.5\" N300 24x7 22TB  Gold 7200rpm 1024MB","gp15":21288000,"gp20":22618500,"category":"Ổ cứng Toshiba N300"},{"model":"HDWG82EAZSTA","desc":"Toshiba 3.5\" N300 24x7 24TB  Gold 7200rpm 1024MB","gp15":22648000,"gp20":24063500,"category":"Ổ cứng Toshiba N300"},{"model":"0B47076","desc":"3.5in 26.1 4TB 256 7200RPM SATA ULTRA 512E SE NP3 DC HA340","gp15":9768000,"gp20":9990000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0B49836","desc":"3.5in 26.1 6TB 256 7200RPM SATA ULTRA 512E SE NP3 DC HC350","gp15":12496000,"gp20":12780000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0B49842","desc":"3.5in 26.1 8TB 256 7200RPM SATA ULTRA 512E SE NP3 DC HC350","gp15":15136000,"gp20":15480000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0B47062","desc":"3.5in 26.1 10TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HA340","gp15":18480000,"gp20":18900000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0B47063","desc":"3.5in 26.1 12TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HA340","gp15":21384000,"gp20":21870000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0B48721","desc":"3.5in 26.1 14TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HC555","gp15":24992000,"gp20":25560000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0F38462","desc":"3.5in 26.1MM 16000GB 512MB 7200RPM SATA ULTRA 512E SE NP3 DC HC550","gp15":28512000,"gp20":29160000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0B48723","desc":"3.5in 26.1 18TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HC555","gp15":32120000,"gp20":32850000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0F38785","desc":"3.5in 26.1 20TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HC560","gp15":35640000,"gp20":36450000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0F62785","desc":"3.5in 26.1 22TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HC580","gp15":39248000,"gp20":40140000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0F65684","desc":"3.5in 26.1 24TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HC590","gp15":42768000,"gp20":43740000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0F65672","desc":"3.5in 26.1 26TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HC590","gp15":46376000,"gp20":47430000,"category":"Ổ cứng Western Digital (WD)"},{"model":"0B50269","desc":"3.5in 26.1 28TB 512 7200RPM SATA ULTRA 512E SE NP3 DC HC5090","gp15":49896000,"gp20":51030000,"category":"Ổ cứng Western Digital (WD)"}]};
 
 const synoByCode = {}; DATA.synologyNAS.forEach(x => synoByCode[x.model] = x);
 const tmByModel = {}; DATA.terraMasterNAS.forEach(x => tmByModel[x.model] = x);
@@ -1321,7 +345,14 @@ function vnd(n){
 function tier(){ return document.getElementById('priceTier').value; }
 
 let rowSeq = 0;
-const rows = []; // {id, product: "NAS:CODE" | "HDD:CODE", qty}
+const rows = []; // {id, product: "NAS:CODE" | "HDD:CODE" | "OTH:CODE", qty}
+let rowSeqB = 0;
+const rowsB = []; // manual Option B rows: {id, product: "<TerraMasterCatalog model>", qty, discountPct}
+
+const tmCatalogByModel = {}; (DATA.terraMasterCatalog||[]).forEach(x => tmCatalogByModel[x.model] = x);
+
+const SYNO_OTHER_ORDER = ['Ổ cứng SSD','Đơn vị mở rộng (Expansion)','Camera & NVR','BeeStation','Backup Appliance (DP series)','Thẻ nhớ MicroSD','License / Phần mềm / Dịch vụ','Phụ kiện (RAM / Card mạng / Rail kit / Khác)'];
+const TM_CATALOG_ORDER = ['NAS','DAS (ổ cứng gắn ngoài)','Ổ cứng Toshiba N300','Ổ cứng Toshiba MG Enterprise','Ổ cứng Western Digital (WD)','Phụ kiện / Linh kiện thay thế'];
 
 function productOptionsHtml(selected){
   let html = '<option value="">— Chọn sản phẩm —</option>';
@@ -1332,6 +363,25 @@ function productOptionsHtml(selected){
     html += `<option value="HDD:${x.model}" ${selected==='HDD:'+x.model?'selected':''}>${x.model}</option>`;
   });
   html += '</optgroup>';
+  SYNO_OTHER_ORDER.forEach(cat=>{
+    const items = (DATA.synologyOther||[]).filter(x=>x.category===cat);
+    if(!items.length) return;
+    html += `<optgroup label="${cat}">`;
+    items.forEach(x=>{ html += `<option value="OTH:${x.model}" ${selected==='OTH:'+x.model?'selected':''}>${x.model}</option>`; });
+    html += '</optgroup>';
+  });
+  return html;
+}
+
+function productOptionsHtmlB(selected){
+  let html = '<option value="">— Chọn sản phẩm —</option>';
+  TM_CATALOG_ORDER.forEach(cat=>{
+    const items = (DATA.terraMasterCatalog||[]).filter(x=>x.category===cat);
+    if(!items.length) return;
+    html += `<optgroup label="${cat}">`;
+    items.forEach(x=>{ html += `<option value="${x.model}" ${selected===x.model?'selected':''}>${x.model}</option>`; });
+    html += '</optgroup>';
+  });
   return html;
 }
 
@@ -1348,7 +398,7 @@ function computeRow(rec){
     const unitB = tm ? tm[tier()] : 0;
     return {type, code, unitA, unitANet, unitB, tmModel: tm ? tm.model : null, map,
       totalA: unitANet*rec.qty, totalB: unitB*rec.qty};
-  } else {
+  } else if(type === 'HDD'){
     const item = synoHddByCode[code];
     const grade = gradeOfSynoHddCode(code);
     const tb = item ? item.tb : null;
@@ -1358,7 +408,23 @@ function computeRow(rec){
     const unitB = toshiba ? toshiba[tier()] : 0;
     return {type, code, unitA, unitANet, unitB, tmModel: toshiba ? toshiba.model : null, map: null, grade, tb,
       totalA: unitANet*rec.qty, totalB: unitB*rec.qty};
+  } else { // 'OTH' — Synology-only category (SSD, camera, license, expansion, BeeStation, DP, accessory...) — chưa có tương đương TerraMaster
+    const item = (DATA.synologyOther||[]).find(x=>x.model===code);
+    const unitA = item ? item.price : 0;
+    const unitANet = unitA * (1 - disc/100);
+    return {type, code, unitA, unitANet, unitB:0, tmModel:null,
+      map:{note:'Nhóm sản phẩm này (' + (item?item.category:'khác') + ') hiện ngoài danh mục TerraMaster/Toshiba đang chào — không áp dụng đối chiếu.', caveat:null},
+      totalA: unitANet*rec.qty, totalB: 0};
   }
+}
+
+function computeRowB(rec){
+  if(!rec.product) return null;
+  const item = tmCatalogByModel[rec.product];
+  const disc = Math.min(100, Math.max(0, rec.discountPct||0));
+  const unit = item ? item[tier()] : 0;
+  const unitNet = unit * (1 - disc/100);
+  return {code: rec.product, category: item ? item.category : '', unit, unitNet, total: unitNet*rec.qty};
 }
 
 function addRow(prefillProduct, prefillQty, prefillDiscount){
@@ -1377,6 +443,30 @@ function onProductChange(id, val){
 }
 function onQtyChange(id, val){
   const rec = rows.find(r=>r.id===id); rec.qty = Math.max(1, parseInt(val)||1);
+  renderTables();
+}
+function addRowB(prefillProduct, prefillQty, prefillDiscount){
+  const id = ++rowSeqB;
+  rowsB.push({id, product: prefillProduct||'', qty: prefillQty||1, discountPct: prefillDiscount||0});
+  renderTables();
+}
+function removeRowB(id){
+  const idx = rowsB.findIndex(r=>r.id===id);
+  if(idx>-1) rowsB.splice(idx,1);
+  renderTables();
+}
+function onProductChangeB(id, val){
+  const rec = rowsB.find(r=>r.id===id); rec.product = val;
+  renderTables();
+}
+function onQtyChangeB(id, val){
+  const rec = rowsB.find(r=>r.id===id); rec.qty = Math.max(1, parseInt(val)||1);
+  renderTables();
+}
+function onDiscountChangeB(id, val){
+  const rec = rowsB.find(r=>r.id===id);
+  let d = parseFloat(val); if(isNaN(d)) d = 0;
+  rec.discountPct = Math.min(100, Math.max(0, d));
   renderTables();
 }
 function onDiscountChange(id, val){
@@ -1445,17 +535,38 @@ function renderTables(){
     if(c) totalA += c.totalA;
   });
 
+  const bodyBManual = [];
+  let totalBManual = 0;
+  rowsB.forEach((rec, i)=>{
+    const n = i+1;
+    const c = rec.product ? computeRowB(rec) : null;
+    bodyBManual.push(`<tr>
+      <td class="center">${n}</td>
+      <td><select onchange="onProductChangeB(${rec.id}, this.value)">${productOptionsHtmlB(rec.product)}</select></td>
+      <td class="center"><input type="number" min="1" value="${rec.qty}" onchange="onQtyChangeB(${rec.id}, this.value)"></td>
+      <td class="num">${c ? vnd(c.unit) : '—'}</td>
+      <td class="center"><input type="number" min="0" max="100" step="0.5" value="${rec.discountPct||0}" onchange="onDiscountChangeB(${rec.id}, this.value)" style="width:56px;text-align:center;">%</td>
+      <td class="num">${c ? vnd(c.total) : '—'}</td>
+      <td class="rm-cell no-print"><button class="btn ghost" onclick="removeRowB(${rec.id})">✕</button></td>
+    </tr>`);
+    if(c) totalBManual += c.total;
+  });
+
   document.getElementById('sheetA').innerHTML = bodyA.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa có dòng sản phẩm nào — bấm "+ Thêm dòng sản phẩm".</td></tr>`;
   document.getElementById('sheetB').innerHTML = bodyB.join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:14px;">—</td></tr>`;
+  document.getElementById('sheetBManual').innerHTML = bodyBManual.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa thêm sản phẩm nào — bấm "+ Thêm dòng sản phẩm TerraMaster/Toshiba".</td></tr>`;
   document.getElementById('sheetAlt').innerHTML = bodyAlt.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa có model nào có tuỳ chọn tiết kiệm hơn trong danh sách hiện tại.</td></tr>`;
   document.getElementById('footA').textContent = vnd(totalA);
-  document.getElementById('footB').textContent = vnd(totalB);
+  document.getElementById('footBAuto').textContent = vnd(totalB);
+  document.getElementById('footBManual').textContent = vnd(totalBManual);
+  const totalBGrand = totalB + totalBManual;
+  document.getElementById('footBGrand').textContent = vnd(totalBGrand);
   document.getElementById('footAlt').textContent = vnd(totalAlt);
   document.getElementById('advisoryBox').innerHTML = advisories.length
     ? `<div class="adv-title">Ghi chú tư vấn kỹ thuật — vì sao đề xuất TerraMaster/Toshiba tương ứng</div>${advisories.join('')}`
     : '';
 
-  renderSummary(totalA, totalB);
+  renderSummary(totalA, totalBGrand);
 }
 
 function renderSummary(totalA, totalB){
@@ -1478,34 +589,14 @@ function renderSummary(totalA, totalB){
   }
 }
 
-// ============ SAVE / LOAD (localStorage, lưu trên trình duyệt đang dùng) ============
-const STORAGE_KEY = 'eavn_syno_terra_quotes_v1';
-
-function loadSavedQuotes(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  }catch(e){ return []; }
-}
-function writeSavedQuotes(arr){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-    return true;
-  }catch(e){ return false; }
-}
-function refreshSavedQuotesList(selectValue){
-  const list = loadSavedQuotes();
-  const sel = document.getElementById('savedQuotesSelect');
-  const cur = selectValue!==undefined ? selectValue : sel.value;
-  sel.innerHTML = '<option value="">— Báo giá đã lưu —</option>' +
-    list.slice().sort((a,b)=> (b.savedAt||'').localeCompare(a.savedAt||''))
-      .map(q => `<option value="${q.bookingId}">${q.bookingId} — ${q.custName || 'Chưa đặt tên'} — ${q.quoteDate || ''}</option>`).join('');
-  if(cur) sel.value = cur;
-}
+// ============ SAVE / LOAD (xuất — nhập file .json thật, không phụ thuộc trình duyệt/máy) ============
 function setSaveStatus(msg, isError){
   const el = document.getElementById('saveStatus');
   el.textContent = msg;
   el.style.color = isError ? 'var(--danger)' : 'var(--good)';
+}
+function slugify(s){
+  return (s||'BaoGia').replace(/[^a-zA-Z0-9\-_]+/g,'_').replace(/^_+|_+$/g,'') || 'BaoGia';
 }
 
 function saveQuote(){
@@ -1515,6 +606,8 @@ function saveQuote(){
     return;
   }
   const entry = {
+    _type: 'eavn-syno-terra-quote',
+    _version: 1,
     bookingId,
     savedAt: new Date().toISOString(),
     quoteDate: document.getElementById('quoteDate').value,
@@ -1522,27 +615,27 @@ function saveQuote(){
     custName: document.getElementById('custName').value,
     notes: document.getElementById('quoteNotes').value,
     priceTier: tier(),
-    rows: rows.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0}))
+    rows: rows.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0})),
+    rowsB: rowsB.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0}))
   };
-  const list = loadSavedQuotes();
-  const idx = list.findIndex(q => q.bookingId === bookingId);
-  if(idx>-1) list[idx] = entry; else list.push(entry);
-  if(writeSavedQuotes(list)){
-    refreshSavedQuotesList(bookingId);
-    setSaveStatus(`Đã lưu báo giá "${bookingId}" lúc ${new Date().toLocaleString('vi-VN')}.`, false);
-  } else {
-    setSaveStatus('Không lưu được — trình duyệt có thể đang chặn bộ nhớ cục bộ (chế độ ẩn danh?).', true);
+
+  try{
+    const blob = new Blob([JSON.stringify(entry, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const dateStr = (entry.quoteDate || new Date().toISOString().slice(0,10));
+    const filename = `BaoGia_${slugify(bookingId)}_${dateStr}.json`;
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    setSaveStatus(`Đã tải file "${filename}" — trình duyệt sẽ hỏi (hoặc tự lưu vào Downloads) nơi lưu file này.`, false);
+  } catch(e){
+    setSaveStatus('Không tạo được file để lưu — vui lòng thử trình duyệt khác.', true);
   }
 }
 
-function loadSelectedQuote(){
-  const bookingId = document.getElementById('savedQuotesSelect').value;
-  if(!bookingId){ setSaveStatus('Chọn một báo giá trong danh sách trước.', true); return; }
-  const list = loadSavedQuotes();
-  const entry = list.find(q => q.bookingId === bookingId);
-  if(!entry){ setSaveStatus('Không tìm thấy báo giá này.', true); return; }
-
-  document.getElementById('quoteNo').value = entry.bookingId;
+function applyLoadedQuote(entry){
+  document.getElementById('quoteNo').value = entry.bookingId || '';
   document.getElementById('quoteDate').value = entry.quoteDate || '';
   document.getElementById('salesRep').value = entry.salesRep || '';
   document.getElementById('custName').value = entry.custName || '';
@@ -1552,18 +645,134 @@ function loadSelectedQuote(){
   rows.length = 0;
   rowSeq = 0;
   (entry.rows||[]).forEach(r => addRow(r.product, r.qty, r.discountPct));
-  if(!entry.rows || entry.rows.length===0) renderTables();
 
-  setSaveStatus(`Đã tải lại báo giá "${bookingId}" (lưu lúc ${new Date(entry.savedAt).toLocaleString('vi-VN')}).`, false);
+  rowsB.length = 0;
+  rowSeqB = 0;
+  (entry.rowsB||[]).forEach(r => addRowB(r.product, r.qty, r.discountPct));
+
+  if((!entry.rows || entry.rows.length===0) && (!entry.rowsB || entry.rowsB.length===0)) renderTables();
+
+  setSaveStatus(`Đã mở lại báo giá "${entry.bookingId || ''}" (lưu lúc ${entry.savedAt ? new Date(entry.savedAt).toLocaleString('vi-VN') : 'không rõ'}).`, false);
 }
 
-function deleteSelectedQuote(){
-  const bookingId = document.getElementById('savedQuotesSelect').value;
-  if(!bookingId){ setSaveStatus('Chọn một báo giá trong danh sách trước.', true); return; }
-  const list = loadSavedQuotes().filter(q => q.bookingId !== bookingId);
-  writeSavedQuotes(list);
-  refreshSavedQuotesList('');
-  setSaveStatus(`Đã xoá báo giá "${bookingId}" khỏi danh sách lưu.`, false);
+function loadQuoteFromFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const entry = JSON.parse(e.target.result);
+      if(!entry || typeof entry !== 'object' || !('rows' in entry)){
+        setSaveStatus('File không đúng định dạng báo giá.', true);
+        return;
+      }
+      applyLoadedQuote(entry);
+    } catch(err){
+      setSaveStatus('Không đọc được file — file có thể bị hỏng hoặc sai định dạng JSON.', true);
+    }
+  };
+  reader.onerror = function(){ setSaveStatus('Không đọc được file đã chọn.', true); };
+  reader.readAsText(file, 'utf-8');
+}
+
+// ============ KHO LƯU CHUNG (Google Sheet qua Apps Script Web App) ============
+const SHARED_URL_KEY = 'eavn_shared_store_url';
+const DEFAULT_SHARED_URL = 'https://script.google.com/macros/s/AKfycbx1d4weWdnvsty1ULCzKGN4GCtxXmVzbwstgccGtuzkdC4ntppH_ZwvYVrvfa79r6yw/exec';
+let sharedQuotesCache = [];
+
+function setSharedStatus(msg, isError){
+  const el = document.getElementById('sharedStatus');
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--danger)' : 'var(--good)';
+}
+function getSharedUrl(){
+  return document.getElementById('sharedStoreUrl').value.trim();
+}
+function onSharedUrlChange(val){
+  try{ localStorage.setItem(SHARED_URL_KEY, val.trim()); }catch(e){}
+}
+function restoreSharedUrl(){
+  let saved = '';
+  try{ saved = localStorage.getItem(SHARED_URL_KEY) || ''; }catch(e){}
+  document.getElementById('sharedStoreUrl').value = saved || DEFAULT_SHARED_URL;
+}
+
+function saveToSharedStore(){
+  const url = getSharedUrl();
+  if(!url){ setSharedStatus('Chưa nhập đường dẫn kho lưu chung (Web App URL).', true); return; }
+  const bookingId = document.getElementById('quoteNo').value.trim();
+  if(!bookingId){ setSharedStatus('Cần nhập Booking ID trước khi lưu.', true); return; }
+
+  const entry = {
+    bookingId,
+    savedAt: new Date().toISOString(),
+    quoteDate: document.getElementById('quoteDate').value,
+    salesRep: document.getElementById('salesRep').value,
+    custName: document.getElementById('custName').value,
+    notes: document.getElementById('quoteNotes').value,
+    priceTier: tier(),
+    rows: rows.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0})),
+    rowsB: rowsB.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0}))
+  };
+
+  setSharedStatus('Đang lưu vào kho chung…', false);
+  fetch(url, {
+    method: 'POST',
+    // dùng text/plain để tránh trình duyệt gửi preflight OPTIONS (Apps Script Web App không xử lý OPTIONS)
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(entry)
+  }).then(r=>r.json()).then(res=>{
+    if(res && res.ok){
+      setSharedStatus(`Đã lưu "${bookingId}" vào kho chung lúc ${new Date().toLocaleString('vi-VN')}.`, false);
+      fetchSharedList(true);
+    } else {
+      setSharedStatus('Lưu vào kho chung thất bại: ' + (res && res.error ? res.error : 'lỗi không xác định'), true);
+    }
+  }).catch(err=>{
+    setSharedStatus('Không kết nối được kho chung — kiểm tra lại đường dẫn Web App URL và quyền truy cập (Deploy > Who has access: Anyone).', true);
+  });
+}
+
+function fetchSharedList(silent){
+  const url = getSharedUrl();
+  if(!url){ if(!silent) setSharedStatus('Chưa nhập đường dẫn kho lưu chung (Web App URL).', true); return; }
+  if(!silent) setSharedStatus('Đang tải danh sách từ kho chung…', false);
+  fetch(url).then(r=>r.json()).then(res=>{
+    if(res && res.ok){
+      sharedQuotesCache = res.quotes || [];
+      const sel = document.getElementById('sharedQuotesSelect');
+      sel.innerHTML = '<option value="">— Chọn báo giá —</option>' +
+        sharedQuotesCache.slice().sort((a,b)=>String(b.SavedAt||'').localeCompare(String(a.SavedAt||'')))
+          .map(q => `<option value="${q.BookingID}">${q.BookingID} — ${q.CustName || 'Chưa đặt tên'} — ${q.QuoteDate || ''}${q.SalesRep ? ' — '+q.SalesRep : ''}</option>`).join('');
+      if(!silent) setSharedStatus(`Đã tải ${sharedQuotesCache.length} báo giá từ kho chung.`, false);
+    } else {
+      if(!silent) setSharedStatus('Không tải được danh sách: ' + (res && res.error ? res.error : 'lỗi không xác định'), true);
+    }
+  }).catch(err=>{
+    if(!silent) setSharedStatus('Không kết nối được kho chung — kiểm tra lại đường dẫn Web App URL.', true);
+  });
+}
+
+function loadSelectedSharedQuote(){
+  const bookingId = document.getElementById('sharedQuotesSelect').value;
+  if(!bookingId){ setSharedStatus('Chọn một báo giá trong danh sách trước.', true); return; }
+  const q = sharedQuotesCache.find(x => String(x.BookingID) === bookingId);
+  if(!q){ setSharedStatus('Không tìm thấy báo giá này trong danh sách đã tải.', true); return; }
+  let parsedRows = [];
+  try{ parsedRows = JSON.parse(q.RowsJSON || '[]'); }catch(e){ parsedRows = []; }
+  let parsedRowsB = [];
+  try{ parsedRowsB = JSON.parse(q.RowsBJSON || '[]'); }catch(e){ parsedRowsB = []; }
+  applyLoadedQuote({
+    bookingId: q.BookingID,
+    savedAt: q.SavedAt,
+    quoteDate: q.QuoteDate,
+    salesRep: q.SalesRep,
+    custName: q.CustName,
+    notes: q.Notes,
+    priceTier: q.PriceTier,
+    rows: parsedRows,
+    rowsB: parsedRowsB
+  });
+  setSharedStatus(`Đã mở báo giá "${bookingId}" từ kho chung.`, false);
 }
 
 function preparePrint(){
@@ -1576,10 +785,10 @@ function preparePrint(){
 document.getElementById('priceTier').addEventListener('change', renderTables);
 
 (function init(){
+  restoreSharedUrl();
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('quoteDate').value = today;
   addRow('', 1);
-  refreshSavedQuotesList();
 })();
 </script>
 </body>
