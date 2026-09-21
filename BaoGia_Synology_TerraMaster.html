@@ -722,13 +722,13 @@ function saveToSharedStore(){
     body: JSON.stringify(entry)
   }).then(r=>r.json()).then(res=>{
     if(res && res.ok){
-      setSharedStatus(`Đã lưu "${bookingId}" vào kho chung lúc ${new Date().toLocaleString('vi-VN')}.`, false);
+      setSharedStatus(`Đã lưu "${bookingId}" vào Server lúc ${new Date().toLocaleString('vi-VN')}.`, false);
       fetchSharedList(true);
     } else {
-      setSharedStatus('Lưu vào kho chung thất bại: ' + (res && res.error ? res.error : 'lỗi không xác định'), true);
+      setSharedStatus('Lưu vào Server thất bại: ' + (res && res.error ? res.error : 'lỗi không xác định'), true);
     }
   }).catch(err=>{
-    setSharedStatus('Không kết nối được kho chung — kiểm tra lại đường dẫn Web App URL và quyền truy cập (Deploy > Who has access: Anyone).', true);
+    setSharedStatus('Không kết nối được Server — kiểm tra lại đường dẫn Web App URL và quyền truy cập (Deploy > Who has access: Anyone).', true);
   });
 }
 
@@ -748,7 +748,7 @@ function fetchSharedList(silent){
       if(!silent) setSharedStatus('Không tải được danh sách: ' + (res && res.error ? res.error : 'lỗi không xác định'), true);
     }
   }).catch(err=>{
-    if(!silent) setSharedStatus('Không kết nối được kho chung — kiểm tra lại đường dẫn Web App URL.', true);
+    if(!silent) setSharedStatus('Không kết nối được Server — kiểm tra lại đường dẫn Web App URL.', true);
   });
 }
 
