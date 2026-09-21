@@ -136,7 +136,7 @@
   <div class="card">
     <h2>Thông tin báo giá <span class="tag">Bước 1</span></h2>
     <div class="grid">
-      <div class="field"><label>Booking ID</label><input type="text" id="quoteNo" placeholder="EAVN-BK-2026-001"></div>
+      <div class="field"><label>Booking ID</label><input type="text" id="quoteNo" placeholder="Điền ID hoặc "None'"></div>
       <div class="field"><label>Ngày báo giá</label><input type="date" id="quoteDate"></div>
       <div class="field"><label>Người phụ trách (EAVN)</label><input type="text" id="salesRep" placeholder="Tên nhân viên kinh doanh"></div>
       <div class="field"><label>Khách hàng / Đơn vị</label><input type="text" id="custName" placeholder="Tên công ty khách hàng"></div>
@@ -273,9 +273,9 @@
     <div id="sharedUrlWrap" style="display:none;">
       <input type="text" id="sharedStoreUrl" value="https://script.google.com/macros/s/AKfycbx1d4weWdnvsty1ULCzKGN4GCtxXmVzbwstgccGtuzkdC4ntppH_ZwvYVrvfa79r6yw/exec" onchange="onSharedUrlChange(this.value)">
     </div>
-    <p class="hint" style="margin-bottom:10px;">Lưu vào kho chung để mọi sales cùng xem/sửa lại được, không sợ mất khi đổi máy.</p>
+    <p class="hint" style="margin-bottom:10px;">Lưu Dữ Liệu</p>
     <div class="toolbar">
-      <button class="btn amber" onclick="saveToSharedStore()">☁️ Lưu vào kho chung</button>
+      <button class="btn amber" onclick="saveToSharedStore()">☁️ Save Data</button>
       <div style="display:flex;gap:8px;align-items:center;flex:1;min-width:280px;">
         <select id="sharedQuotesSelect" style="flex:1;"><option value="">— Bấm "Tải danh sách" trước —</option></select>
         <button class="btn secondary" onclick="fetchSharedList()">🔄 Tải danh sách</button>
