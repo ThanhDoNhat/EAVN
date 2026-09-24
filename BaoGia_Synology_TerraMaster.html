@@ -114,6 +114,7 @@
     .summary-card,.savings-line{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -136,7 +137,7 @@
   <div class="card">
     <h2>Thông tin báo giá <span class="tag">Bước 1</span></h2>
     <div class="grid">
-      <div class="field"><label>Booking ID</label><input type="text" id="quoteNo" placeholder="Nhập ID hoặc None"></div>
+      <div class="field"><label>Booking ID</label><input type="text" id="quoteNo" placeholder="Điền ID dự án"></div>
       <div class="field"><label>Ngày báo giá</label><input type="date" id="quoteDate"></div>
       <div class="field"><label>Người phụ trách (EAVN)</label><input type="text" id="salesRep" placeholder="Tên nhân viên kinh doanh"></div>
       <div class="field"><label>Khách hàng / Đơn vị</label><input type="text" id="custName" placeholder="Tên công ty khách hàng"></div>
@@ -165,10 +166,10 @@
     </div>
   </div>
 
-  <!-- ============ OPTION B: TERRAMASTER + TOSHIBA (auto) ============ -->
+  <!-- ============ OPTION B: TERRAMASTER + TOSHIBA (đề xuất tự động + thêm thủ công, 1 bảng duy nhất) ============ -->
   <div class="card">
-    <h2>Phương án B — Đề xuất TerraMaster + Toshiba <span class="tag">Tự động</span></h2>
-    <p class="hint">Bảng này tự sinh theo đúng thứ tự dòng của Phương án A: NAS Synology → NAS TerraMaster tương đương; ổ cứng Synology → ổ Toshiba cùng dung lượng (mã 3 → N300, mã 5 → MG Enterprise). Lý do đề xuất cho từng dòng xem ở khối "Ghi chú tư vấn" bên dưới bảng. Bậc giá áp dụng:
+    <h2>Phương án B — Đề xuất TerraMaster + Toshiba</h2>
+    <p class="hint">Các dòng đầu tự sinh theo đúng thứ tự dòng của Phương án A: NAS Synology → NAS TerraMaster tương đương; ổ cứng Synology → ổ Toshiba cùng dung lượng (mã 3 → N300, mã 5 → MG Enterprise). Lý do đề xuất xem ở khối "Ghi chú tư vấn" bên dưới bảng. Bấm "+ Thêm sản phẩm" để chào thêm phụ kiện, DAS, ổ Toshiba/WD hoặc model TerraMaster khác ngay trong bảng này — cộng thẳng vào tổng BOM Phương án B để đối chiếu cho dễ. Bậc giá áp dụng:
       <select id="priceTier" class="no-print" style="width:auto;display:inline-block;padding:3px 8px;font-size:12px;">
         <option value="gp15">GP15</option><option value="gp20">GP20</option>
       </select>
@@ -176,40 +177,21 @@
     <table class="sheet optionB">
       <thead><tr>
         <th style="width:36px;">#</th>
-        <th style="width:38%;">Product Name</th>
-        <th style="width:110px;">Quantity</th>
-        <th>Đơn giá</th>
-        <th>Thành tiền</th>
-      </tr></thead>
-      <tbody id="sheetB"></tbody>
-      <tfoot><tr><td colspan="4">Tổng đối chiếu tự động (theo BOM Synology)</td><td class="num" id="footBAuto">0 ₫</td></tr></tfoot>
-    </table>
-    <div class="advisory-box" id="advisoryBox"></div>
-  </div>
-
-  <!-- ============ OPTION B MANUAL: ADD TERRAMASTER/TOSHIBA/WD SKUs DIRECTLY ============ -->
-  <div class="card">
-    <h2>Phương án B — Thêm sản phẩm TerraMaster/Toshiba/WD khác</h2>
-    <p class="hint">Chọn trực tiếp thêm SKU TerraMaster, DAS, phụ kiện, ổ cứng Toshiba hoặc Western Digital không có trong BOM Synology bên trên (ví dụ: bán kèm phụ kiện, nâng cấp, hoặc chào thêm sản phẩm khác) — cộng thẳng vào tổng Phương án B.</p>
-    <table class="sheet optionB">
-      <thead><tr>
-        <th style="width:36px;">#</th>
-        <th style="width:38%;">Product Name</th>
+        <th style="width:34%;">Product Name</th>
         <th style="width:90px;">Quantity</th>
         <th>Đơn giá</th>
         <th style="width:100px;">Chiết khấu %</th>
         <th>Thành tiền</th>
         <th class="no-print" style="width:34px;"></th>
       </tr></thead>
+      <tbody id="sheetB"></tbody>
       <tbody id="sheetBManual"></tbody>
-      <tfoot><tr><td colspan="5">Tổng sản phẩm thêm riêng</td><td class="num" id="footBManual">0 ₫</td><td class="no-print"></td></tr></tfoot>
+      <tfoot><tr><td colspan="5">TỔNG PHƯƠNG ÁN B</td><td class="num" id="footBGrand">0 ₫</td><td class="no-print"></td></tr></tfoot>
     </table>
     <div style="margin-top:10px;">
-      <button class="btn secondary no-print" onclick="addRowB()">+ Thêm dòng sản phẩm TerraMaster/Toshiba</button>
+      <button class="btn secondary no-print" onclick="addRowB()">+ Thêm sản phẩm TerraMaster/Toshiba/WD khác</button>
     </div>
-    <div class="savings-line" style="background:var(--teal-light);color:var(--navy-dark);margin-top:14px;">
-      <span>TỔNG CỘNG PHƯƠNG ÁN B (đối chiếu tự động + thêm riêng)</span><b id="footBGrand">0 ₫</b>
-    </div>
+    <div class="advisory-box" id="advisoryBox"></div>
   </div>
 
   <!-- ============ OPTION B ALT: LOWER-COST REFERENCE ============ -->
@@ -255,6 +237,7 @@
 
   <div class="card" style="text-align:center;">
     <button class="btn amber no-print" style="font-size:15px;padding:12px 26px;" onclick="preparePrint()">🖨 In / Xuất PDF báo giá cho khách hàng</button>
+    <button class="btn secondary no-print" style="font-size:15px;padding:12px 26px;margin-left:10px;" onclick="exportExcel()">📊 Xuất Excel</button>
   </div>
 
   <div class="card">
@@ -413,6 +396,7 @@ function computeRow(rec){
     const unitANet = calcSynoPrice(syno, disc);
     const unitB = tm ? tm[tier()] : 0;
     return {type, code, unitA, unitANet, unitB, tmModel: tm ? tm.model : null, map,
+      descA: syno?syno.desc:'', warrantyA: syno?syno.warranty:'', descB: tm?tm.desc:'',
       totalA: unitANet*rec.qty, totalB: unitB*rec.qty};
   } else if(type === 'HDD'){
     const item = synoHddByCode[code];
@@ -423,6 +407,7 @@ function computeRow(rec){
     const unitANet = calcSynoPrice(item, disc);
     const unitB = toshiba ? toshiba[tier()] : 0;
     return {type, code, unitA, unitANet, unitB, tmModel: toshiba ? toshiba.model : null, map: null, grade, tb,
+      descA: item?item.desc:'', warrantyA: item?item.warranty:'', descB: toshiba?toshiba.desc:'',
       totalA: unitANet*rec.qty, totalB: unitB*rec.qty};
   } else { // 'OTH' — Synology-only category (SSD, camera, license, expansion, BeeStation, DP, accessory, spare parts...) — chưa có tương đương TerraMaster
     const item = (DATA.synologyOtherv2||[]).find(x=>x.model===code);
@@ -430,6 +415,7 @@ function computeRow(rec){
     const unitANet = calcSynoPrice(item, disc);
     return {type, code, unitA, unitANet, unitB:0, tmModel:null,
       map:{note:'Nhóm sản phẩm này (' + (item?item.category:'khác') + ') hiện ngoài danh mục TerraMaster/Toshiba đang chào — không áp dụng đối chiếu.', caveat:null},
+      descA: item?item.desc:'', warrantyA: item?item.warranty:'', descB: '',
       totalA: unitANet*rec.qty, totalB: 0};
   }
 }
@@ -440,7 +426,7 @@ function computeRowB(rec){
   const disc = Math.min(100, Math.max(0, rec.discountPct||0));
   const unit = item ? item[tier()] : 0;
   const unitNet = unit * (1 - disc/100);
-  return {code: rec.product, category: item ? item.category : '', unit, unitNet, total: unitNet*rec.qty};
+  return {code: rec.product, category: item ? item.category : '', desc: item?item.desc:'', unit, unitNet, total: unitNet*rec.qty};
 }
 
 function addRow(prefillProduct, prefillQty, prefillDiscount){
@@ -512,14 +498,16 @@ function renderTables(){
     </tr>`);
 
     if(!c){
-      bodyB.push(`<tr><td class="center">${n}</td><td colspan="4" style="color:var(--muted);">—</td></tr>`);
+      bodyB.push(`<tr><td class="center">${n}</td><td colspan="6" style="color:var(--muted);">—</td></tr>`);
     } else if(c.tmModel){
       bodyB.push(`<tr>
         <td class="center">${n}</td>
         <td class="price-b">${c.tmModel}</td>
         <td class="center">${rec.qty}</td>
         <td class="num">${vnd(c.unitB)}</td>
+        <td class="center" style="color:var(--muted);">—</td>
         <td class="num">${vnd(c.totalB)}</td>
+        <td class="no-print"></td>
       </tr>`);
       totalB += c.totalB;
       if(c.type === 'NAS' && ALT_MAP[c.code]){
@@ -546,7 +534,7 @@ function renderTables(){
       }
     } else {
       const reason = c.map ? c.map.note : 'Không tìm thấy ổ Toshiba cùng dung lượng.';
-      bodyB.push(`<tr><td class="center">${n}</td><td class="no-equiv" colspan="4">✕ Không có tương đương — ${reason}</td></tr>`);
+      bodyB.push(`<tr><td class="center">${n}</td><td class="no-equiv" colspan="6">✕ Không có tương đương — ${reason}</td></tr>`);
     }
     if(c) totalA += c.totalA;
   });
@@ -554,7 +542,7 @@ function renderTables(){
   const bodyBManual = [];
   let totalBManual = 0;
   rowsB.forEach((rec, i)=>{
-    const n = i+1;
+    const n = rows.length + i + 1; // đánh số tiếp theo sau các dòng tự động ở trên
     const c = rec.product ? computeRowB(rec) : null;
     bodyBManual.push(`<tr>
       <td class="center">${n}</td>
@@ -569,12 +557,10 @@ function renderTables(){
   });
 
   document.getElementById('sheetA').innerHTML = bodyA.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa có dòng sản phẩm nào — bấm "+ Thêm dòng sản phẩm".</td></tr>`;
-  document.getElementById('sheetB').innerHTML = bodyB.join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:14px;">—</td></tr>`;
-  document.getElementById('sheetBManual').innerHTML = bodyBManual.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa thêm sản phẩm nào — bấm "+ Thêm dòng sản phẩm TerraMaster/Toshiba".</td></tr>`;
+  document.getElementById('sheetB').innerHTML = bodyB.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">—</td></tr>`;
+  document.getElementById('sheetBManual').innerHTML = bodyBManual.join('');
   document.getElementById('sheetAlt').innerHTML = bodyAlt.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa có model nào có tuỳ chọn tiết kiệm hơn trong danh sách hiện tại.</td></tr>`;
   document.getElementById('footA').textContent = vnd(totalA);
-  document.getElementById('footBAuto').textContent = vnd(totalB);
-  document.getElementById('footBManual').textContent = vnd(totalBManual);
   const totalBGrand = totalB + totalBManual;
   document.getElementById('footBGrand').textContent = vnd(totalBGrand);
   document.getElementById('footAlt').textContent = vnd(totalAlt);
@@ -789,6 +775,102 @@ function loadSelectedSharedQuote(){
     rowsB: parsedRowsB
   });
   setSharedStatus(`Đã mở báo giá "${bookingId}" từ kho chung.`, false);
+}
+
+function warrantyLabel(w){
+  if(w===null || w===undefined || w==='') return '—';
+  if(typeof w === 'number') return w + ' năm';
+  return String(w);
+}
+
+function exportExcel(){
+  if(typeof XLSX === 'undefined'){
+    setSaveStatus && setSaveStatus('Không tải được thư viện xuất Excel — kiểm tra kết nối mạng rồi thử lại.', true);
+    alert('Không tải được thư viện xuất Excel (cần kết nối mạng để tải thư viện lần đầu). Vui lòng kiểm tra mạng rồi thử lại.');
+    return;
+  }
+  const wb = XLSX.utils.book_new();
+  const bookingId = document.getElementById('quoteNo').value || '';
+  const custName = document.getElementById('custName').value || '';
+  const quoteDate = document.getElementById('quoteDate').value || '';
+  const salesRep = document.getElementById('salesRep').value || '';
+  const notes = document.getElementById('quoteNotes').value || '';
+
+  // ---- Sheet 1: Thông tin báo giá ----
+  const infoAoa = [
+    ['BÁO GIÁ THIẾT BỊ LƯU TRỮ NAS — EAVN'],
+    [],
+    ['Booking ID', bookingId],
+    ['Ngày báo giá', quoteDate],
+    ['Khách hàng', custName],
+    ['Người phụ trách (EAVN)', salesRep],
+    ['Bậc giá TerraMaster áp dụng', tier().toUpperCase()],
+    ['Ghi chú', notes],
+  ];
+  const wsInfo = XLSX.utils.aoa_to_sheet(infoAoa);
+  wsInfo['!cols'] = [{wch:26},{wch:50}];
+  XLSX.utils.book_append_sheet(wb, wsInfo, 'Thong tin bao gia');
+
+  // ---- Sheet 2: Phương án A — Synology ----
+  const headA = ['STT','Mã sản phẩm','Mô tả','Bảo hành','SL','Đơn giá','Chiết khấu %','Thành tiền'];
+  const aoaA = [headA];
+  let totalA = 0;
+  rows.forEach((rec, i)=>{
+    if(!rec.product) return;
+    const c = computeRow(rec);
+    if(!c) return;
+    aoaA.push([i+1, c.code, c.descA||'', warrantyLabel(c.warrantyA), rec.qty, c.unitA, rec.discountPct||0, c.totalA]);
+    totalA += c.totalA;
+  });
+  aoaA.push(['','','','','','','TỔNG PHƯƠNG ÁN A', totalA]);
+  const wsA = XLSX.utils.aoa_to_sheet(aoaA);
+  wsA['!cols'] = [{wch:5},{wch:20},{wch:55},{wch:12},{wch:6},{wch:15},{wch:12},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, wsA, 'Phuong an A - Synology');
+
+  // ---- Sheet 3: Phương án B — TerraMaster + Toshiba/WD ----
+  const headB = ['STT','Mã sản phẩm','Mô tả','Bảo hành','SL','Đơn giá','Chiết khấu %','Thành tiền'];
+  const aoaB = [headB];
+  let totalB = 0;
+  let n = 0;
+  rows.forEach((rec)=>{
+    if(!rec.product) return;
+    n++;
+    const c = computeRow(rec);
+    if(!c || !c.tmModel) return; // bỏ qua dòng không có tương đương
+    aoaB.push([n, c.tmModel, c.descB||'', '—', rec.qty, c.unitB, 0, c.totalB]);
+    totalB += c.totalB;
+  });
+  rowsB.forEach((rec)=>{
+    if(!rec.product) return;
+    n++;
+    const c = computeRowB(rec);
+    if(!c) return;
+    aoaB.push([n, c.code, c.desc||'', '—', rec.qty, c.unit, rec.discountPct||0, c.total]);
+    totalB += c.total;
+  });
+  aoaB.push(['','','','','','','TỔNG PHƯƠNG ÁN B', totalB]);
+  const wsB = XLSX.utils.aoa_to_sheet(aoaB);
+  wsB['!cols'] = [{wch:5},{wch:20},{wch:55},{wch:12},{wch:6},{wch:15},{wch:12},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, wsB, 'Phuong an B - TerraMaster');
+
+  // ---- Sheet 4: Tổng hợp ----
+  const diff = totalA - totalB;
+  const pct = totalA>0 ? (diff/totalA*100) : 0;
+  const aoaSum = [
+    ['TỔNG HỢP SO SÁNH'],
+    [],
+    ['Tổng Phương án A (Synology)', totalA],
+    ['Tổng Phương án B (TerraMaster + Toshiba/WD)', totalB],
+    [diff>=0 ? 'Phương án B tiết kiệm hơn' : 'Phương án B cao hơn', Math.abs(diff)],
+    ['Tỷ lệ', (diff>=0?'-':'+') + Math.abs(pct).toFixed(1) + '%'],
+  ];
+  const wsSum = XLSX.utils.aoa_to_sheet(aoaSum);
+  wsSum['!cols'] = [{wch:40},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, wsSum, 'Tong hop');
+
+  const dateStr = quoteDate || new Date().toISOString().slice(0,10);
+  const filename = `BaoGia_${slugify(bookingId||'chua-dat-ten')}_${dateStr}.xlsx`;
+  XLSX.writeFile(wb, filename);
 }
 
 function preparePrint(){
