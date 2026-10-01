@@ -59,6 +59,11 @@
   .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px;}
 
   /* ===== Excel-style sheet tables ===== */
+  .option-block{border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:16px;background:#fafcfc;}
+  .option-block .option-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .option-name-input{font-family:Cambria,serif;font-weight:700;font-size:15px;color:var(--navy);border:1px solid transparent;background:transparent;padding:4px 6px;border-radius:4px;max-width:60%;}
+  .option-name-input:hover, .option-name-input:focus{border-color:#c3d1d4;background:#fff;}
+  .option-block .advisory-box{margin-top:12px;}
   table.sheet{width:100%;border-collapse:collapse;font-size:13.5px;}
   table.sheet th{background:#1c1c1c;color:#fff;text-align:center;padding:9px 10px;font-weight:700;font-size:13px;border:1px solid #000;}
   table.sheet.optionB th{background:var(--teal);}
@@ -144,73 +149,23 @@
     </div>
   </div>
 
-  <!-- ============ OPTION A: SYNOLOGY SHEET ============ -->
+  <!-- ============ GIẢI PHÁP SYNOLOGY (nhiều Phương án) ============ -->
   <div class="card">
-    <h2>Phương án A — Bảng giá Synology <span class="tag">Bước 2</span></h2>
-    <p class="hint">Chọn sản phẩm (NAS hoặc ổ cứng) và nhập số lượng — giá tự động lấy theo bảng giá Synology. Nhập % chiết khấu áp dụng riêng cho từng dòng nếu có (ví dụ theo chương trình giá của Synology cho model/khách hàng đó).</p>
-    <table class="sheet optionA">
-      <thead><tr>
-        <th style="width:36px;">#</th>
-        <th style="width:32%;">Product Name</th>
-        <th style="width:90px;">Quantity</th>
-        <th>Đơn giá</th>
-        <th style="width:100px;">Chiết khấu %</th>
-        <th>Thành tiền</th>
-        <th class="no-print" style="width:34px;"></th>
-      </tr></thead>
-      <tbody id="sheetA"></tbody>
-      <tfoot><tr><td colspan="5">TỔNG PHƯƠNG ÁN A (sau chiết khấu)</td><td class="num" id="footA">0 ₫</td><td class="no-print"></td></tr></tfoot>
-    </table>
-    <div style="margin-top:10px;">
-      <button class="btn secondary no-print" onclick="addRow()">+ Thêm dòng sản phẩm</button>
-    </div>
+    <h2>Giải Pháp Synology <span class="tag">Bước 2</span></h2>
+    <p class="hint">Mỗi Phương án là một bảng BOM Synology riêng (ví dụ: Phương án 1 = cấu hình tiết kiệm, Phương án 2 = cấu hình cao cấp...). Chọn sản phẩm và nhập số lượng — giá tự động lấy theo bảng giá Synology; nhập % chiết khấu áp dụng riêng từng dòng nếu có.</p>
+    <div id="synoOptionsWrap"></div>
+    <button class="btn secondary no-print" onclick="addOption()">+ Thêm Phương án (Giải pháp Synology)</button>
   </div>
 
-  <!-- ============ OPTION B: TERRAMASTER + TOSHIBA (đề xuất tự động + thêm thủ công, 1 bảng duy nhất) ============ -->
+  <!-- ============ GIẢI PHÁP TERRAMASTER (nhiều Phương án, mỗi Phương án đi kèm 1 Phương án Synology cùng tên) ============ -->
   <div class="card">
-    <h2>Phương án B — Đề xuất TerraMaster + Toshiba</h2>
-    <p class="hint">Các dòng đầu tự sinh theo đúng thứ tự dòng của Phương án A: NAS Synology → NAS TerraMaster tương đương; ổ cứng Synology → ổ Toshiba cùng dung lượng (mã 3 → N300, mã 5 → MG Enterprise). Lý do đề xuất xem ở khối "Ghi chú tư vấn" bên dưới bảng. Bấm "+ Thêm sản phẩm" để chào thêm phụ kiện, DAS, ổ Toshiba/WD hoặc model TerraMaster khác ngay trong bảng này — cộng thẳng vào tổng BOM Phương án B để đối chiếu cho dễ. Bậc giá áp dụng:
+    <h2>Giải Pháp TerraMaster</h2>
+    <p class="hint">Mỗi Phương án ở đây tự sinh theo đúng Phương án Synology cùng tên bên trên: NAS Synology → NAS TerraMaster tương đương; ổ cứng Synology → ổ Toshiba cùng dung lượng (mã 3 → N300, mã 5 → MG Enterprise). Sản phẩm không có tương đương sẽ không hiện ở đây. Bấm "+ Thêm sản phẩm" trong từng Phương án để chào thêm phụ kiện, DAS, ổ Toshiba/WD hoặc model TerraMaster khác. Bậc giá áp dụng:
       <select id="priceTier" class="no-print" style="width:auto;display:inline-block;padding:3px 8px;font-size:12px;">
         <option value="gp20">GP20</option><option value="gp15">GP15</option>
       </select>
     </p>
-    <table class="sheet optionB">
-      <thead><tr>
-        <th style="width:36px;">#</th>
-        <th style="width:34%;">Product Name</th>
-        <th style="width:90px;">Quantity</th>
-        <th>Đơn giá</th>
-        <th style="width:100px;">Chiết khấu %</th>
-        <th>Thành tiền</th>
-        <th class="no-print" style="width:34px;"></th>
-      </tr></thead>
-      <tbody id="sheetB"></tbody>
-      <tbody id="sheetBManual"></tbody>
-      <tfoot><tr><td colspan="5">TỔNG PHƯƠNG ÁN B</td><td class="num" id="footBGrand">0 ₫</td><td class="no-print"></td></tr></tfoot>
-    </table>
-    <div style="margin-top:10px;">
-      <button class="btn secondary no-print" onclick="addRowB()">+ Thêm sản phẩm TerraMaster/Toshiba/WD khác</button>
-    </div>
-    <div class="advisory-box" id="advisoryBox"></div>
-  </div>
-
-  <!-- ============ OPTION B ALT: LOWER-COST REFERENCE ============ -->
-  <div class="card">
-    <h2>Phương án B — Tuỳ chọn tiết kiệm hơn <span class="tag">Tham khảo</span></h2>
-    <p class="hint">Model TerraMaster cùng số khay nhưng giá thấp hơn, chỉ để tham khảo thêm cho khách — <b>không cộng vào tổng Phương án B</b> ở trên. Có đánh đổi cấu hình (xem cột Ghi chú).</p>
-    <table class="sheet optionB">
-      <thead><tr>
-        <th style="width:36px;">#</th>
-        <th style="width:16%;">Model gốc (Phương án B)</th>
-        <th style="width:16%;">Model tiết kiệm hơn</th>
-        <th style="width:80px;">Quantity</th>
-        <th>Đơn giá</th>
-        <th>Thành tiền</th>
-        <th>Ghi chú đánh đổi</th>
-      </tr></thead>
-      <tbody id="sheetAlt"></tbody>
-      <tfoot><tr><td colspan="5">TỔNG (nếu chọn toàn bộ tuỳ chọn tiết kiệm hơn)</td><td class="num" id="footAlt">0 ₫</td><td></td></tr></tfoot>
-    </table>
+    <div id="tmOptionsWrap"></div>
   </div>
 
   <!-- ============ SUMMARY ============ -->
@@ -218,14 +173,14 @@
     <h2>Tổng hợp báo giá <span class="tag">Bước 3</span></h2>
     <div class="summary-grid">
       <div class="summary-card a" id="sumCardA">
-        <h3>Phương án A — Nguyên bản Synology</h3>
+        <h3>Giải Pháp Synology — tổng tất cả phương án</h3>
         <div class="big" id="totalA">0 ₫</div>
         <div class="sub">Tổng giá trị thiết bị + ổ cứng Synology</div>
       </div>
       <div class="summary-card b" id="sumCardB">
-        <h3>Phương án B — TerraMaster + Toshiba</h3>
+        <h3>Giải Pháp TerraMaster — tổng tất cả phương án</h3>
         <div class="big" id="totalB">0 ₫</div>
-        <div class="sub">Tổng giá trị thiết bị + ổ cứng Toshiba</div>
+        <div class="sub">Tổng giá trị thiết bị + ổ cứng Toshiba/WD</div>
       </div>
     </div>
     <div class="savings-line" id="savingsLine">Chênh lệch: —</div>
@@ -350,10 +305,14 @@ function vnd(n){
 }
 function tier(){ return document.getElementById('priceTier').value; }
 
-let rowSeq = 0;
-const rows = []; // {id, product: "NAS:CODE" | "HDD:CODE" | "OTH:CODE", qty}
-let rowSeqB = 0;
-const rowsB = []; // manual Option B rows: {id, product: "<TerraMasterCatalog model>", qty, discountPct}
+// ============ NHIỀU PHƯƠNG ÁN cho mỗi Giải pháp ============
+// Mỗi "option" là 1 cặp Phương án Synology <-> TerraMaster cùng tên (TerraMaster tự sinh từ rows của chính option đó).
+let optSeq = 0;
+const options = []; // {id, name, rows:[{id,product,qty,discountPct}], rowSeq, rowsB:[...], rowSeqB}
+
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 const tmCatalogByModel = {}; (DATA.terraMasterCatalog||[]).forEach(x => tmCatalogByModel[x.model] = x);
 
@@ -440,76 +399,130 @@ function computeRowB(rec){
   return {code: rec.product, category: item ? item.category : '', desc: item?item.desc:'', unit, unitNet, total: unitNet*rec.qty};
 }
 
-function addRow(prefillProduct, prefillQty, prefillDiscount){
-  const id = ++rowSeq;
-  rows.push({id, product: prefillProduct||'', qty: prefillQty||1, discountPct: prefillDiscount||0});
-  renderTables();
+function addOption(prefillName){
+  const id = ++optSeq;
+  options.push({id, name: prefillName || ('Phương án ' + (options.length+1)), rows: [], rowSeq: 0, rowsB: [], rowSeqB: 0});
+  renderAll();
 }
-function removeRow(id){
-  const idx = rows.findIndex(r=>r.id===id);
-  if(idx>-1) rows.splice(idx,1);
-  renderTables();
+function removeOption(id){
+  const idx = options.findIndex(o=>o.id===id);
+  if(idx>-1) options.splice(idx,1);
+  renderAll();
 }
-function onProductChange(id, val){
-  const rec = rows.find(r=>r.id===id); rec.product = val;
-  renderTables();
+function renameOption(id, val){
+  const opt = options.find(o=>o.id===id);
+  if(opt) opt.name = (val||'').trim() || opt.name;
+  renderAll();
 }
-function onQtyChange(id, val){
-  const rec = rows.find(r=>r.id===id); rec.qty = Math.max(1, parseInt(val)||1);
-  renderTables();
+function getOption(id){ return options.find(o=>o.id===id); }
+
+function addRow(optId, prefillProduct, prefillQty, prefillDiscount){
+  const opt = getOption(optId); if(!opt) return;
+  const id = ++opt.rowSeq;
+  opt.rows.push({id, product: prefillProduct||'', qty: prefillQty||1, discountPct: prefillDiscount||0});
+  renderAll();
 }
-function addRowB(prefillProduct, prefillQty, prefillDiscount){
-  const id = ++rowSeqB;
-  rowsB.push({id, product: prefillProduct||'', qty: prefillQty||1, discountPct: prefillDiscount||0});
-  renderTables();
+function removeRow(optId, id){
+  const opt = getOption(optId); if(!opt) return;
+  const idx = opt.rows.findIndex(r=>r.id===id);
+  if(idx>-1) opt.rows.splice(idx,1);
+  renderAll();
 }
-function removeRowB(id){
-  const idx = rowsB.findIndex(r=>r.id===id);
-  if(idx>-1) rowsB.splice(idx,1);
-  renderTables();
+function onProductChange(optId, id, val){
+  const opt = getOption(optId); if(!opt) return;
+  const rec = opt.rows.find(r=>r.id===id); if(rec) rec.product = val;
+  renderAll();
 }
-function onProductChangeB(id, val){
-  const rec = rowsB.find(r=>r.id===id); rec.product = val;
-  renderTables();
+function onQtyChange(optId, id, val){
+  const opt = getOption(optId); if(!opt) return;
+  const rec = opt.rows.find(r=>r.id===id); if(rec) rec.qty = Math.max(1, parseInt(val)||1);
+  renderAll();
 }
-function onQtyChangeB(id, val){
-  const rec = rowsB.find(r=>r.id===id); rec.qty = Math.max(1, parseInt(val)||1);
-  renderTables();
-}
-function onDiscountChangeB(id, val){
-  const rec = rowsB.find(r=>r.id===id);
+function onDiscountChange(optId, id, val){
+  const opt = getOption(optId); if(!opt) return;
+  const rec = opt.rows.find(r=>r.id===id); if(!rec) return;
   let d = parseFloat(val); if(isNaN(d)) d = 0;
   rec.discountPct = Math.min(100, Math.max(0, d));
-  renderTables();
+  renderAll();
 }
-function onDiscountChange(id, val){
-  const rec = rows.find(r=>r.id===id);
+function addRowB(optId, prefillProduct, prefillQty, prefillDiscount){
+  const opt = getOption(optId); if(!opt) return;
+  const id = ++opt.rowSeqB;
+  opt.rowsB.push({id, product: prefillProduct||'', qty: prefillQty||1, discountPct: prefillDiscount||0});
+  renderAll();
+}
+function removeRowB(optId, id){
+  const opt = getOption(optId); if(!opt) return;
+  const idx = opt.rowsB.findIndex(r=>r.id===id);
+  if(idx>-1) opt.rowsB.splice(idx,1);
+  renderAll();
+}
+function onProductChangeB(optId, id, val){
+  const opt = getOption(optId); if(!opt) return;
+  const rec = opt.rowsB.find(r=>r.id===id); if(rec) rec.product = val;
+  renderAll();
+}
+function onQtyChangeB(optId, id, val){
+  const opt = getOption(optId); if(!opt) return;
+  const rec = opt.rowsB.find(r=>r.id===id); if(rec) rec.qty = Math.max(1, parseInt(val)||1);
+  renderAll();
+}
+function onDiscountChangeB(optId, id, val){
+  const opt = getOption(optId); if(!opt) return;
+  const rec = opt.rowsB.find(r=>r.id===id); if(!rec) return;
   let d = parseFloat(val); if(isNaN(d)) d = 0;
   rec.discountPct = Math.min(100, Math.max(0, d));
-  renderTables();
+  renderAll();
 }
 
-function renderTables(){
-  const bodyA = [], bodyB = [], bodyAlt = [];
-  let totalA = 0, totalB = 0, totalAlt = 0;
-  let shownB = 0; // đếm số dòng THỰC SỰ hiển thị ở Phương án B (bỏ qua dòng không có tương đương)
-  const advisories = [];
-
-  rows.forEach((rec, i)=>{
+// Dựng khối "Phương án" bên Giải Pháp Synology cho 1 option — trả về {html, total}
+function renderOptionSynology(opt){
+  const bodyA = [];
+  let totalA = 0;
+  opt.rows.forEach((rec, i)=>{
     const n = i+1;
     const c = rec.product ? computeRow(rec) : null;
-
     bodyA.push(`<tr>
       <td class="center">${n}</td>
-      <td><select onchange="onProductChange(${rec.id}, this.value)">${productOptionsHtml(rec.product)}</select></td>
-      <td class="center"><input type="number" min="1" value="${rec.qty}" onchange="onQtyChange(${rec.id}, this.value)"></td>
+      <td><select onchange="onProductChange(${opt.id}, ${rec.id}, this.value)">${productOptionsHtml(rec.product)}</select></td>
+      <td class="center"><input type="number" min="1" value="${rec.qty}" onchange="onQtyChange(${opt.id}, ${rec.id}, this.value)"></td>
       <td class="num">${c ? vnd(c.unitA) : '—'}</td>
-      <td class="center"><input type="number" min="0" max="100" step="0.5" value="${rec.discountPct||0}" onchange="onDiscountChange(${rec.id}, this.value)" style="width:56px;text-align:center;">%</td>
+      <td class="center"><input type="number" min="0" max="100" step="0.5" value="${rec.discountPct||0}" onchange="onDiscountChange(${opt.id}, ${rec.id}, this.value)" style="width:56px;text-align:center;">%</td>
       <td class="num">${c ? vnd(c.totalA) : '—'}</td>
-      <td class="rm-cell no-print"><button class="btn ghost" onclick="removeRow(${rec.id})">✕</button></td>
+      <td class="rm-cell no-print"><button class="btn ghost" onclick="removeRow(${opt.id}, ${rec.id})">✕</button></td>
     </tr>`);
+    if(c) totalA += c.totalA;
+  });
+  const bodyHtml = bodyA.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa có dòng sản phẩm nào — bấm "+ Thêm dòng sản phẩm".</td></tr>`;
+  const nm = escapeHtml(opt.name);
+  const html = `<div class="option-block" id="optA-${opt.id}">
+      <div class="option-header">
+        <input type="text" class="option-name-input" value="${nm}" onchange="renameOption(${opt.id}, this.value)">
+        ${options.length>1 ? `<button class="btn ghost no-print" onclick="removeOption(${opt.id})">✕ Xoá phương án này (cả 2 bên)</button>` : ''}
+      </div>
+      <table class="sheet optionA">
+        <thead><tr>
+          <th style="width:36px;">#</th><th style="width:32%;">Product Name</th><th style="width:90px;">Quantity</th>
+          <th>Đơn giá</th><th style="width:100px;">Chiết khấu %</th><th>Thành tiền</th><th class="no-print" style="width:34px;"></th>
+        </tr></thead>
+        <tbody>${bodyHtml}</tbody>
+        <tfoot><tr><td colspan="5">TỔNG ${nm}</td><td class="num">${vnd(totalA)}</td><td class="no-print"></td></tr></tfoot>
+      </table>
+      <div style="margin-top:10px;">
+        <button class="btn secondary no-print" onclick="addRow(${opt.id})">+ Thêm dòng sản phẩm</button>
+      </div>
+    </div>`;
+  return {html, total: totalA};
+}
 
-    // Phương án B: chỉ hiện dòng khi CÓ tương đương TerraMaster/Toshiba — không có thì bỏ qua hẳn, không hiện "✕ Không có tương đương" nữa.
+// Dựng khối "Phương án" bên Giải Pháp TerraMaster cho 1 option (auto từ opt.rows + thêm thủ công opt.rowsB) — trả về {html, total}
+function renderOptionTerraMaster(opt){
+  const bodyB = [], bodyAlt = [];
+  let totalB = 0, totalAlt = 0, shownB = 0;
+  const advisories = [];
+
+  opt.rows.forEach(rec=>{
+    const c = rec.product ? computeRow(rec) : null;
     if(c && c.tmModel){
       shownB++;
       bodyB.push(`<tr>
@@ -545,39 +558,70 @@ function renderTables(){
         advisories.push(`<div class="adv-line"><b>#${shownB} ${c.code} → ${c.tmModel}:</b> Ổ cứng ${c.tb}TB mã ${c.grade==='code5'?'5 (HAT53xx/HAS53xx, Enterprise)':'3 (HAT33xx, Plus)'} — quy đổi tương đương Toshiba ${c.grade==='code5'?'MG Enterprise':'N300'} cùng dung lượng.</div>`);
       }
     }
-    if(c) totalA += c.totalA;
   });
 
   const bodyBManual = [];
   let totalBManual = 0;
-  rowsB.forEach((rec, i)=>{
-    const n = shownB + i + 1; // đánh số tiếp theo sau các dòng tự động ĐANG HIỂN THỊ ở trên
+  opt.rowsB.forEach((rec, i)=>{
+    const n = shownB + i + 1;
     const c = rec.product ? computeRowB(rec) : null;
     bodyBManual.push(`<tr>
       <td class="center">${n}</td>
-      <td><select onchange="onProductChangeB(${rec.id}, this.value)">${productOptionsHtmlB(rec.product)}</select></td>
-      <td class="center"><input type="number" min="1" value="${rec.qty}" onchange="onQtyChangeB(${rec.id}, this.value)"></td>
+      <td><select onchange="onProductChangeB(${opt.id}, ${rec.id}, this.value)">${productOptionsHtmlB(rec.product)}</select></td>
+      <td class="center"><input type="number" min="1" value="${rec.qty}" onchange="onQtyChangeB(${opt.id}, ${rec.id}, this.value)"></td>
       <td class="num">${c ? vnd(c.unit) : '—'}</td>
-      <td class="center"><input type="number" min="0" max="100" step="0.5" value="${rec.discountPct||0}" onchange="onDiscountChangeB(${rec.id}, this.value)" style="width:56px;text-align:center;">%</td>
+      <td class="center"><input type="number" min="0" max="100" step="0.5" value="${rec.discountPct||0}" onchange="onDiscountChangeB(${opt.id}, ${rec.id}, this.value)" style="width:56px;text-align:center;">%</td>
       <td class="num">${c ? vnd(c.total) : '—'}</td>
-      <td class="rm-cell no-print"><button class="btn ghost" onclick="removeRowB(${rec.id})">✕</button></td>
+      <td class="rm-cell no-print"><button class="btn ghost" onclick="removeRowB(${opt.id}, ${rec.id})">✕</button></td>
     </tr>`);
     if(c) totalBManual += c.total;
   });
 
-  document.getElementById('sheetA').innerHTML = bodyA.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa có dòng sản phẩm nào — bấm "+ Thêm dòng sản phẩm".</td></tr>`;
-  document.getElementById('sheetB').innerHTML = bodyB.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">—</td></tr>`;
-  document.getElementById('sheetBManual').innerHTML = bodyBManual.join('');
-  document.getElementById('sheetAlt').innerHTML = bodyAlt.join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa có model nào có tuỳ chọn tiết kiệm hơn trong danh sách hiện tại.</td></tr>`;
-  document.getElementById('footA').textContent = vnd(totalA);
   const totalBGrand = totalB + totalBManual;
-  document.getElementById('footBGrand').textContent = vnd(totalBGrand);
-  document.getElementById('footAlt').textContent = vnd(totalAlt);
-  document.getElementById('advisoryBox').innerHTML = advisories.length
-    ? `<div class="adv-title">Ghi chú tư vấn kỹ thuật — vì sao đề xuất TerraMaster/Toshiba tương ứng</div>${advisories.join('')}`
-    : '';
+  const bodyBHtml = (bodyB.join('') + bodyBManual.join('')) || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:14px;">Chưa có sản phẩm nào ở phương án này.</td></tr>`;
+  const nm = escapeHtml(opt.name);
 
-  renderSummary(totalA, totalBGrand);
+  const altHtml = bodyAlt.length ? `
+      <div style="margin-top:14px;">
+        <h4 style="font-size:13px;color:var(--navy);margin-bottom:6px;">Tuỳ chọn tiết kiệm hơn (tham khảo, chưa gộp vào tổng)</h4>
+        <table class="sheet optionB">
+          <thead><tr><th style="width:36px;">#</th><th>Model gốc</th><th>Model tiết kiệm hơn</th><th style="width:70px;">SL</th><th>Đơn giá</th><th>Thành tiền</th><th>Ghi chú</th></tr></thead>
+          <tbody>${bodyAlt.join('')}</tbody>
+          <tfoot><tr><td colspan="5">TỔNG (nếu chọn toàn bộ)</td><td class="num">${vnd(totalAlt)}</td><td></td></tr></tfoot>
+        </table>
+      </div>` : '';
+  const advisoryHtml = advisories.length ? `<div class="advisory-box"><div class="adv-title">Ghi chú tư vấn kỹ thuật</div>${advisories.join('')}</div>` : '';
+
+  const html = `<div class="option-block" id="optB-${opt.id}">
+      <div class="option-header"><span class="option-name-input" style="cursor:default;">${nm}</span></div>
+      <table class="sheet optionB">
+        <thead><tr>
+          <th style="width:36px;">#</th><th style="width:34%;">Product Name</th><th style="width:90px;">Quantity</th>
+          <th>Đơn giá</th><th style="width:100px;">Chiết khấu %</th><th>Thành tiền</th><th class="no-print" style="width:34px;"></th>
+        </tr></thead>
+        <tbody>${bodyBHtml}</tbody>
+        <tfoot><tr><td colspan="5">TỔNG ${nm}</td><td class="num">${vnd(totalBGrand)}</td><td class="no-print"></td></tr></tfoot>
+      </table>
+      <div style="margin-top:10px;">
+        <button class="btn secondary no-print" onclick="addRowB(${opt.id})">+ Thêm sản phẩm TerraMaster/Toshiba/WD khác</button>
+      </div>
+      ${advisoryHtml}${altHtml}
+    </div>`;
+  return {html, total: totalBGrand};
+}
+
+function renderAll(){
+  const synoHtml = [], tmHtml = [];
+  let grandA = 0, grandB = 0;
+  options.forEach(opt=>{
+    const rA = renderOptionSynology(opt);
+    synoHtml.push(rA.html); grandA += rA.total;
+    const rB = renderOptionTerraMaster(opt);
+    tmHtml.push(rB.html); grandB += rB.total;
+  });
+  document.getElementById('synoOptionsWrap').innerHTML = synoHtml.join('') || `<p style="color:var(--muted);font-size:13px;">Chưa có phương án nào — bấm "+ Thêm Phương án" bên dưới.</p>`;
+  document.getElementById('tmOptionsWrap').innerHTML = tmHtml.join('') || `<p style="color:var(--muted);font-size:13px;">Chưa có phương án nào.</p>`;
+  renderSummary(grandA, grandB);
 }
 
 function renderSummary(totalA, totalB){
@@ -589,10 +633,10 @@ function renderSummary(totalA, totalB){
   const line = document.getElementById('savingsLine');
   if(totalA>0){
     if(diff >= 0){
-      line.innerHTML = `Phương án B tiết kiệm hơn Phương án A: <b>${vnd(diff)}</b> (giảm ${pct.toFixed(1)}%)`;
+      line.innerHTML = `Giải Pháp TerraMaster tiết kiệm hơn Giải Pháp Synology: <b>${vnd(diff)}</b> (giảm ${pct.toFixed(1)}%)`;
       line.style.background = 'var(--good-bg)'; line.style.color = '#2f6b4e';
     } else {
-      line.innerHTML = `Phương án B cao hơn Phương án A: <b>${vnd(-diff)}</b> (tăng ${(-pct).toFixed(1)}%) — do nâng cấp cấu hình`;
+      line.innerHTML = `Giải Pháp TerraMaster cao hơn Giải Pháp Synology: <b>${vnd(-diff)}</b> (tăng ${(-pct).toFixed(1)}%) — do nâng cấp cấu hình`;
       line.style.background = 'var(--amber-light)'; line.style.color = '#8a5a17';
     }
   } else {
@@ -610,6 +654,26 @@ function slugify(s){
   return (s||'BaoGia').replace(/[^a-zA-Z0-9\-_]+/g,'_').replace(/^_+|_+$/g,'') || 'BaoGia';
 }
 
+function serializeOptions(){
+  return options.map(o => ({
+    name: o.name,
+    rows: o.rows.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0})),
+    rowsB: o.rowsB.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0}))
+  }));
+}
+function loadOptionsFromEntry(entryOptions){
+  options.length = 0; optSeq = 0;
+  (entryOptions||[]).forEach(o=>{
+    const id = ++optSeq;
+    const opt = {id, name: o.name || ('Phương án ' + (options.length+1)), rows: [], rowSeq: 0, rowsB: [], rowSeqB: 0};
+    (o.rows||[]).forEach(r=>{ const rid = ++opt.rowSeq; opt.rows.push({id:rid, product:r.product||'', qty:r.qty||1, discountPct:r.discountPct||0}); });
+    (o.rowsB||[]).forEach(r=>{ const rid = ++opt.rowSeqB; opt.rowsB.push({id:rid, product:r.product||'', qty:r.qty||1, discountPct:r.discountPct||0}); });
+    options.push(opt);
+  });
+  if(options.length===0) options.push({id: ++optSeq, name:'Phương án 1', rows:[], rowSeq:0, rowsB:[], rowSeqB:0});
+  renderAll();
+}
+
 function saveQuote(){
   const bookingId = document.getElementById('quoteNo').value.trim();
   if(!bookingId){
@@ -618,7 +682,7 @@ function saveQuote(){
   }
   const entry = {
     _type: 'eavn-syno-terra-quote',
-    _version: 1,
+    _version: 2,
     bookingId,
     savedAt: new Date().toISOString(),
     quoteDate: document.getElementById('quoteDate').value,
@@ -626,8 +690,7 @@ function saveQuote(){
     custName: document.getElementById('custName').value,
     notes: document.getElementById('quoteNotes').value,
     priceTier: tier(),
-    rows: rows.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0})),
-    rowsB: rowsB.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0}))
+    options: serializeOptions()
   };
 
   try{
@@ -653,15 +716,12 @@ function applyLoadedQuote(entry){
   document.getElementById('quoteNotes').value = entry.notes || '';
   document.getElementById('priceTier').value = entry.priceTier || 'gp15';
 
-  rows.length = 0;
-  rowSeq = 0;
-  (entry.rows||[]).forEach(r => addRow(r.product, r.qty, r.discountPct));
-
-  rowsB.length = 0;
-  rowSeqB = 0;
-  (entry.rowsB||[]).forEach(r => addRowB(r.product, r.qty, r.discountPct));
-
-  if((!entry.rows || entry.rows.length===0) && (!entry.rowsB || entry.rowsB.length===0)) renderTables();
+  if(entry.options && entry.options.length){
+    loadOptionsFromEntry(entry.options);
+  } else {
+    // tương thích ngược với báo giá lưu từ bản cũ (1 Phương án duy nhất, chưa có nhiều phương án)
+    loadOptionsFromEntry([{name:'Phương án 1', rows: entry.rows||[], rowsB: entry.rowsB||[]}]);
+  }
 
   setSaveStatus(`Đã mở lại báo giá "${entry.bookingId || ''}" (lưu lúc ${entry.savedAt ? new Date(entry.savedAt).toLocaleString('vi-VN') : 'không rõ'}).`, false);
 }
@@ -672,7 +732,7 @@ function loadQuoteFromFile(file){
   reader.onload = function(e){
     try{
       const entry = JSON.parse(e.target.result);
-      if(!entry || typeof entry !== 'object' || !('rows' in entry)){
+      if(!entry || typeof entry !== 'object' || !('rows' in entry || 'options' in entry)){
         setSaveStatus('File không đúng định dạng báo giá.', true);
         return;
       }
@@ -721,8 +781,9 @@ function saveToSharedStore(){
     custName: document.getElementById('custName').value,
     notes: document.getElementById('quoteNotes').value,
     priceTier: tier(),
-    rows: rows.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0})),
-    rowsB: rowsB.map(r => ({product:r.product, qty:r.qty, discountPct:r.discountPct||0}))
+    // Tái dùng cột RowsJSON có sẵn để lưu toàn bộ mảng "options" (nhiều Phương án) — không cần đổi Apps Script/Sheet.
+    rows: serializeOptions(),
+    rowsB: []
   };
 
   setSharedStatus('Đang lưu vào kho chung…', false);
@@ -772,6 +833,8 @@ function loadSelectedSharedQuote(){
   try{ parsedRows = JSON.parse(q.RowsJSON || '[]'); }catch(e){ parsedRows = []; }
   let parsedRowsB = [];
   try{ parsedRowsB = JSON.parse(q.RowsBJSON || '[]'); }catch(e){ parsedRowsB = []; }
+  // Báo giá mới lưu "options" (nhiều Phương án) vào RowsJSON; báo giá cũ lưu mảng dòng phẳng — nhận diện qua khoá 'rows' bên trong.
+  const isNewFormat = Array.isArray(parsedRows) && parsedRows.length>0 && typeof parsedRows[0]==='object' && parsedRows[0]!==null && 'rows' in parsedRows[0];
   applyLoadedQuote({
     bookingId: q.BookingID,
     savedAt: q.SavedAt,
@@ -780,8 +843,9 @@ function loadSelectedSharedQuote(){
     custName: q.CustName,
     notes: q.Notes,
     priceTier: q.PriceTier,
-    rows: parsedRows,
-    rowsB: parsedRowsB
+    options: isNewFormat ? parsedRows : undefined,
+    rows: isNewFormat ? undefined : parsedRows,
+    rowsB: isNewFormat ? undefined : parsedRowsB
   });
   setSharedStatus(`Đã mở báo giá "${bookingId}" từ kho chung.`, false);
 }
@@ -794,88 +858,93 @@ function warrantyLabel(w){
 
 function exportExcel(){
   if(typeof XLSX === 'undefined'){
-    setSaveStatus && setSaveStatus('Không tải được thư viện xuất Excel — kiểm tra kết nối mạng rồi thử lại.', true);
     alert('Không tải được thư viện xuất Excel (cần kết nối mạng để tải thư viện lần đầu). Vui lòng kiểm tra mạng rồi thử lại.');
     return;
   }
-  const wb = XLSX.utils.book_new();
   const bookingId = document.getElementById('quoteNo').value || '';
   const custName = document.getElementById('custName').value || '';
   const quoteDate = document.getElementById('quoteDate').value || '';
   const salesRep = document.getElementById('salesRep').value || '';
   const notes = document.getElementById('quoteNotes').value || '';
 
-  // ---- Sheet 1: Thông tin báo giá ----
-  const infoAoa = [
-    ['BÁO GIÁ THIẾT BỊ LƯU TRỮ NAS — EAVN'],
-    [],
-    ['Booking ID', bookingId],
-    ['Ngày báo giá', quoteDate],
-    ['Khách hàng', custName],
-    ['Người phụ trách (EAVN)', salesRep],
-    ['Bậc giá TerraMaster áp dụng', tier().toUpperCase()],
-    ['Ghi chú', notes],
-  ];
-  const wsInfo = XLSX.utils.aoa_to_sheet(infoAoa);
-  wsInfo['!cols'] = [{wch:26},{wch:50}];
-  XLSX.utils.book_append_sheet(wb, wsInfo, 'Thong tin bao gia');
+  const aoa = [];
+  const boldRows = []; // các dòng cần in đậm (section header)
+  const markBold = ()=> boldRows.push(aoa.length-1);
 
-  // ---- Sheet 2: Phương án A — Synology ----
-  const headA = ['STT','Mã sản phẩm','Mô tả','Bảo hành','SL','Đơn giá','Chiết khấu %','Thành tiền'];
-  const aoaA = [headA];
-  let totalA = 0;
-  rows.forEach((rec, i)=>{
-    if(!rec.product) return;
-    const c = computeRow(rec);
-    if(!c) return;
-    aoaA.push([i+1, c.code, c.descA||'', warrantyLabel(c.warrantyA), rec.qty, c.unitA, rec.discountPct||0, c.totalA]);
-    totalA += c.totalA;
-  });
-  aoaA.push(['','','','','','','TỔNG PHƯƠNG ÁN A', totalA]);
-  const wsA = XLSX.utils.aoa_to_sheet(aoaA);
-  wsA['!cols'] = [{wch:5},{wch:20},{wch:55},{wch:12},{wch:6},{wch:15},{wch:12},{wch:16}];
-  XLSX.utils.book_append_sheet(wb, wsA, 'Phuong an A - Synology');
+  aoa.push(['BÁO GIÁ THIẾT BỊ LƯU TRỮ NAS — EAVN']); markBold();
+  aoa.push([]);
+  aoa.push(['Booking ID', bookingId, '', 'Ngày báo giá', quoteDate]);
+  aoa.push(['Khách hàng', custName, '', 'Người phụ trách', salesRep]);
+  aoa.push(['Bậc giá TerraMaster áp dụng', tier().toUpperCase()]);
+  aoa.push(['Ghi chú', notes]);
+  aoa.push([]);
 
-  // ---- Sheet 3: Phương án B — TerraMaster + Toshiba/WD ----
-  const headB = ['STT','Mã sản phẩm','Mô tả','Bảo hành','SL','Đơn giá','Chiết khấu %','Thành tiền'];
-  const aoaB = [headB];
-  let totalB = 0;
-  let n = 0;
-  rows.forEach((rec)=>{
-    if(!rec.product) return;
-    n++;
-    const c = computeRow(rec);
-    if(!c || !c.tmModel) return; // bỏ qua dòng không có tương đương
-    aoaB.push([n, c.tmModel, c.descB||'', '—', rec.qty, c.unitB, 0, c.totalB]);
-    totalB += c.totalB;
-  });
-  rowsB.forEach((rec)=>{
-    if(!rec.product) return;
-    n++;
-    const c = computeRowB(rec);
-    if(!c) return;
-    aoaB.push([n, c.code, c.desc||'', '—', rec.qty, c.unit, rec.discountPct||0, c.total]);
-    totalB += c.total;
-  });
-  aoaB.push(['','','','','','','TỔNG PHƯƠNG ÁN B', totalB]);
-  const wsB = XLSX.utils.aoa_to_sheet(aoaB);
-  wsB['!cols'] = [{wch:5},{wch:20},{wch:55},{wch:12},{wch:6},{wch:15},{wch:12},{wch:16}];
-  XLSX.utils.book_append_sheet(wb, wsB, 'Phuong an B - TerraMaster');
+  let grandA = 0, grandB = 0;
 
-  // ---- Sheet 4: Tổng hợp ----
-  const diff = totalA - totalB;
-  const pct = totalA>0 ? (diff/totalA*100) : 0;
-  const aoaSum = [
-    ['TỔNG HỢP SO SÁNH'],
-    [],
-    ['Tổng Phương án A (Synology)', totalA],
-    ['Tổng Phương án B (TerraMaster + Toshiba/WD)', totalB],
-    [diff>=0 ? 'Phương án B tiết kiệm hơn' : 'Phương án B cao hơn', Math.abs(diff)],
-    ['Tỷ lệ', (diff>=0?'-':'+') + Math.abs(pct).toFixed(1) + '%'],
-  ];
-  const wsSum = XLSX.utils.aoa_to_sheet(aoaSum);
-  wsSum['!cols'] = [{wch:40},{wch:20}];
-  XLSX.utils.book_append_sheet(wb, wsSum, 'Tong hop');
+  aoa.push(['GIẢI PHÁP SYNOLOGY']); markBold();
+  options.forEach(opt=>{
+    aoa.push([opt.name]); markBold();
+    const items = [];
+    opt.rows.forEach(rec=>{
+      if(!rec.product) return;
+      const c = computeRow(rec); if(!c) return;
+      items.push({code:c.code, desc:c.descA, warranty:warrantyLabel(c.warrantyA), qty:rec.qty, unit:c.unitA, discountPct:rec.discountPct, total:c.totalA});
+    });
+    const headIdx = aoa.length;
+    aoa.push(['STT','Mã sản phẩm','Mô tả','Bảo hành','SL','Đơn giá','Chiết khấu %','Thành tiền']); markBold();
+    let sub = 0;
+    items.forEach((it,i)=>{ aoa.push([i+1, it.code, it.desc, it.warranty, it.qty, it.unit, it.discountPct, it.total]); sub += it.total; });
+    aoa.push(['','','','','','','TỔNG '+opt.name, sub]); markBold();
+    aoa.push([]);
+    grandA += sub;
+  });
+  aoa.push(['','','','','','','TỔNG GIẢI PHÁP SYNOLOGY', grandA]); markBold();
+  aoa.push([]); aoa.push([]);
+
+  aoa.push(['GIẢI PHÁP TERRAMASTER']); markBold();
+  options.forEach(opt=>{
+    aoa.push([opt.name]); markBold();
+    const items = [];
+    opt.rows.forEach(rec=>{
+      if(!rec.product) return;
+      const c = computeRow(rec);
+      if(!c || !c.tmModel) return; // bỏ qua dòng không có tương đương
+      items.push({code:c.tmModel, desc:c.descB, warranty:'—', qty:rec.qty, unit:c.unitB, discountPct:0, total:c.totalB});
+    });
+    opt.rowsB.forEach(rec=>{
+      if(!rec.product) return;
+      const c = computeRowB(rec); if(!c) return;
+      items.push({code:c.code, desc:c.desc, warranty:'—', qty:rec.qty, unit:c.unit, discountPct:rec.discountPct, total:c.total});
+    });
+    aoa.push(['STT','Mã sản phẩm','Mô tả','Bảo hành','SL','Đơn giá','Chiết khấu %','Thành tiền']); markBold();
+    let sub = 0;
+    items.forEach((it,i)=>{ aoa.push([i+1, it.code, it.desc, it.warranty, it.qty, it.unit, it.discountPct, it.total]); sub += it.total; });
+    aoa.push(['','','','','','','TỔNG '+opt.name, sub]); markBold();
+    aoa.push([]);
+    grandB += sub;
+  });
+  aoa.push(['','','','','','','TỔNG GIẢI PHÁP TERRAMASTER', grandB]); markBold();
+  aoa.push([]); aoa.push([]);
+
+  const diff = grandA - grandB;
+  const pct = grandA>0 ? (diff/grandA*100) : 0;
+  aoa.push(['TỔNG HỢP SO SÁNH']); markBold();
+  aoa.push(['Tổng Giải Pháp Synology', grandA]);
+  aoa.push(['Tổng Giải Pháp TerraMaster', grandB]);
+  aoa.push([diff>=0 ? 'Giải Pháp TerraMaster tiết kiệm hơn' : 'Giải Pháp TerraMaster cao hơn', Math.abs(diff)]);
+  aoa.push(['Tỷ lệ', (diff>=0?'-':'+') + Math.abs(pct).toFixed(1) + '%']);
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:22},{wch:20},{wch:50},{wch:10},{wch:6},{wch:15},{wch:12},{wch:16}];
+  boldRows.forEach(r=>{
+    for(let c=0;c<8;c++){
+      const addr = XLSX.utils.encode_cell({r,c});
+      if(ws[addr]) ws[addr].s = {font:{bold:true}};
+    }
+  });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Bao gia');
 
   const dateStr = quoteDate || new Date().toISOString().slice(0,10);
   const filename = `BaoGia_${slugify(bookingId||'chua-dat-ten')}_${dateStr}.xlsx`;
@@ -889,13 +958,14 @@ function preparePrint(){
   window.print();
 }
 
-document.getElementById('priceTier').addEventListener('change', renderTables);
+document.getElementById('priceTier').addEventListener('change', renderAll);
 
 (function init(){
   restoreSharedUrl();
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('quoteDate').value = today;
-  addRow('', 1);
+  addOption(); // "Phương án 1" mặc định, kèm 1 dòng sản phẩm trống để hướng dẫn chọn
+  addRow(options[0].id, '', 1);
 })();
 </script>
 </body>
